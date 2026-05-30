@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your Progress — Aptitude Explorer Lab</title>
+<style>
+  :root{
+    --bg:#0f1419; --panel:#171d26; --panel-2:#1f2733; --line:#2a3340;
+    --ink:#e8edf2; --muted:#9aa7b4; --faint:#6b7785;
+    --accent:#4f9cf9; --accent-2:#7c5cff;
+    --good:#34d399; --warn:#fbbf24; --bad:#f87171;
+    --radius:14px; --shadow:0 8px 30px rgba(0,0,0,.35); --maxw:900px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 600px at 70% -10%, #1b2533 0%, var(--bg) 55%) fixed;
+    color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:24px 16px 72px;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto}
+  h1,h2,h3{line-height:1.2;margin:0 0 .45em}
+  h1{font-size:1.5rem;letter-spacing:-.01em}
+  h2{font-size:1.15rem}
+  h3{font-size:1rem}
+  p{margin:0 0 .7em}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .muted{color:var(--muted)} .faint{color:var(--faint);font-size:.84rem}
+  .hidden{display:none !important}
+
+  .card{
+    background:linear-gradient(180deg,var(--panel) 0%, #141a23 100%);
+    border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:24px 26px; margin:0 0 20px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .brand .dot{width:40px;height:40px;border-radius:12px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:grid;place-items:center;font-weight:800;color:#fff;font-size:1.15rem;
+    box-shadow:0 6px 18px rgba(79,156,249,.35)}
+  .brand small{display:block;color:var(--muted);font-weight:500}
+
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.76rem;
+    font-weight:600;border:1px solid var(--line);color:var(--muted)}
+  .pill.good{color:var(--good);border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.1)}
+  .pill.warn{color:var(--warn);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
+  .pill.bad{color:var(--bad);border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.1)}
+
+  .btn{appearance:none;border:1px solid var(--line);border-radius:10px;cursor:pointer;
+    padding:9px 16px;font-size:.92rem;font-weight:600;color:var(--ink);background:var(--panel-2);
+    transition:.12s}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent}
+  .btn.sm{padding:6px 12px;font-size:.82rem}
+  .btn.danger{border-color:rgba(248,113,113,.4);color:var(--bad)}
+  .btn.danger:hover{background:rgba(248,113,113,.1)}
+  a.btn{text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+  /* Test summary cards */
+  .test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:16px 0}
+  .tcard{border:1px solid var(--line);border-radius:12px;padding:20px;background:var(--panel-2)}
+  .tcard .thead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px}
+  .tcard .tname{font-weight:700;font-size:1rem}
+  .tcard .tdate{color:var(--faint);font-size:.78rem;margin-top:3px}
+  .ring{--p:0; width:80px;height:80px;border-radius:50%;flex:0 0 auto;
+    background:
+      radial-gradient(closest-side, var(--panel-2) 79%, transparent 80% 100%),
+      conic-gradient(var(--accent) calc(var(--p)*1%), #2a3340 0);
+    display:grid;place-items:center;position:relative}
+  .ring b{font-size:1.2rem}
+  .ring small{position:absolute;bottom:16px;color:var(--muted);font-size:.65rem}
+  .tcard .dims{margin-top:14px}
+  .tcard .dimrow{display:flex;align-items:center;gap:8px;margin:6px 0}
+  .tcard .dimrow .dlabel{font-size:.78rem;color:var(--muted);flex:0 0 120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tcard .dimrow .dbar{flex:1;height:6px;border-radius:999px;background:#0c1118;overflow:hidden}
+  .tcard .dimrow .dbar i{display:block;height:100%;border-radius:999px}
+  .tcard .dimrow .dbar i.good{background:var(--good)}
+  .tcard .dimrow .dbar i.warn{background:var(--warn)}
+  .tcard .dimrow .dbar i.bad{background:var(--bad)}
+  .tcard .dimrow .dpct{font-size:.78rem;color:var(--muted);flex:0 0 34px;text-align:right}
+  .tcard .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+
+  /* Comparison table */
+  .cmp-grid{overflow-x:auto;margin:14px 0}
+  .cmp-table{border-collapse:collapse;width:100%;min-width:400px;font-size:.9rem}
+  .cmp-table th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--line);color:var(--muted);font-weight:600;font-size:.82rem;white-space:nowrap}
+  .cmp-table td{padding:9px 12px;border-bottom:1px solid var(--line)}
+  .cmp-table td.dim-name{color:var(--muted);font-size:.88rem}
+  .cmp-cell{display:inline-flex;align-items:center;gap:6px}
+  .cmp-bar{width:50px;height:6px;border-radius:999px;background:#0c1118;overflow:hidden;display:inline-block}
+  .cmp-bar i{display:block;height:100%}
+  .cmp-bar i.good{background:var(--good)} .cmp-bar i.warn{background:var(--warn)} .cmp-bar i.bad{background:var(--bad)}
+  .cmp-delta{font-size:.78rem;font-weight:700}
+  .cmp-delta.up{color:var(--good)} .cmp-delta.dn{color:var(--bad)} .cmp-delta.eq{color:var(--faint)}
+  tr:hover td{background:rgba(255,255,255,.02)}
+
+  /* Behavioral stats */
+  .beh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0}
+  .bstat{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--panel-2)}
+  .bstat .bnum{font-size:1.5rem;font-weight:800;line-height:1}
+  .bstat .blabel{font-size:.8rem;color:var(--muted);margin-top:4px}
+  .bstat .binterp{font-size:.78rem;color:var(--faint);margin-top:6px;line-height:1.4}
+  .bstat.warn-bg{border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.05)}
+  .bstat.bad-bg{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.04)}
+  .bstat.good-bg{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.04)}
+
+  /* Study focus */
+  .focus-list{display:grid;gap:12px;margin:14px 0}
+  .focus-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--panel-2)}
+  .focus-item .fname{font-weight:700;font-size:.95rem;margin-bottom:4px}
+  .focus-item .favg{color:var(--bad);font-weight:600}
+  .focus-item .fadv{font-size:.88rem;color:var(--muted);margin-top:6px;line-height:1.5}
+
+  /* Empty state */
+  .empty{text-align:center;padding:40px 20px}
+  .empty .icon{font-size:3rem;margin-bottom:12px}
+
+  /* Section header */
+  .sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:10px}
+  .sec-head h2{margin:0}
+
+  /* Notice */
+  .notice{border-radius:10px;padding:12px 14px;font-size:.9rem;
+    border:1px solid var(--line);background:var(--panel-2);margin:10px 0}
+  .notice.info{border-color:rgba(79,156,249,.35);background:rgba(79,156,249,.07);color:#cfe3ff}
+
+  .legal{border-top:1px solid var(--line);margin-top:30px;padding-top:16px;
+    color:var(--faint);font-size:.78rem;line-height:1.55}
+  .legal p{margin:0 0 8px} .legal strong{color:var(--muted)}
+
+  @media(max-width:560px){.card{padding:18px 16px} body{padding:14px 10px 56px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+      <div class="brand">
+        <div class="dot">★</div>
+        <div><strong>Your Progress</strong>
+          <small>Aptitude Explorer Lab — results dashboard</small></div>
+      </div>
+      <a href="index.html" class="btn sm">← All tests</a>
+    </div>
+    <p class="muted" style="margin-top:8px;margin-bottom:0">Your results from every test you've taken in this browser, side by side. Nothing is uploaded — this reads only from your own browser's storage.</p>
+  </div>
+
+  <div id="main"><!-- filled by JS --></div>
+
+  <footer class="legal">
+    <p><strong>Disclaimer.</strong> An informal, experimental tool made for fun and learning. Scores here are <strong>not</strong> measures of intelligence, ability, aptitude, or readiness for any course or career, and must not be used for any consequential decision.</p>
+    <p><strong>Privacy.</strong> All data is read from your own browser's local storage. Nothing is uploaded or shared.</p>
+    <p>Designed by <strong>thebenVar</strong> for personal use.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+
+const TEST_META = {
+  "ai-ml": { label:"AI/ML", href:"ai-ml.html", icon:"🧠" },
+  "ds":    { label:"Data Science",          href:"ds.html",    icon:"📊" },
+  "cs":    { label:"Computer Science",      href:"cs.html",    icon:"💻" }
+};
+
+const DIM_META = {
+  quant: { label:"Quantitative",       improve:"Khan Academy Arithmetic + Algebra 1." },
+  logic: { label:"Logical Reasoning",  improve:"Number-series puzzles and logic apps, 15 min/day." },
+  stats: { label:"Statistics",         improve:"Khan Academy Statistics & Probability — mean, median, variance, probability." },
+  code:  { label:"Computational Logic",improve:"Scratch or Python on Codecademy — trace logic, not syntax." },
+  data:  { label:"Data Interpretation",improve:"Read charts in news/sports; ask 'what does this actually prove?'" }
+};
+
+function b64decode(b64){ return decodeURIComponent(escape(atob(b64))); }
+function rate(pct){ return pct>=70?"good":pct>=45?"warn":"bad"; }
+function fmtDate(iso){ return iso ? new Date(iso).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}) : "—"; }
+
+function loadAllResults(){
+  const out={};
+  for(const id of Object.keys(TEST_META)){
+    const raw=localStorage.getItem(`aptitude-result:${id}`);
+    if(!raw) continue;
+    try{
+      const outer=JSON.parse(raw);
+      if(!outer.payload) continue;
+      const data=JSON.parse(b64decode(outer.payload));
+      out[id]=data;
+    }catch(e){}
+  }
+  return out;
+}
+
+function computeBehavioral(data){
+  const pq=data.perQuestion||[];
+  const n=pq.length; if(!n) return null;
+  const rapid   = pq.filter(q=>q.wasRapid).length;
+  const changed  = pq.filter(q=>q.changes && q.changes.length>0).length;
+  const timedOut = pq.filter(q=>q.timedOut).length;
+  const revisited= pq.filter(q=>q.visits>1).length;
+  const avgMs    = Math.round(pq.reduce((s,q)=>s+(q.totalMs||0),0)/n);
+  const pressure = pq.filter(q=>q.answeredNearDeadline);
+  const pressurePct = pressure.length ? Math.round(pressure.filter(q=>q.isCorrect).length/pressure.length*100) : null;
+  const calm    = pq.filter(q=>!q.answeredNearDeadline && q.answer!==null);
+  const calmPct = calm.length ? Math.round(calm.filter(q=>q.isCorrect).length/calm.length*100) : null;
+  return {
+    rushPct:       Math.round(rapid/n*100),
+    indecisionPct: Math.round(changed/n*100),
+    timeoutPct:    Math.round(timedOut/n*100),
+    revisitPct:    Math.round(revisited/n*100),
+    avgSec:        Math.round(avgMs/1000),
+    pressurePct,
+    calmPct,
+    n
+  };
+}
+
+function getAllDims(results){
+  const dims=new Set();
+  for(const d of Object.values(results)){
+    if(d.dimScores) Object.keys(d.dimScores).forEach(k=>dims.add(k));
+  }
+  const order=["quant","logic","stats","code","data"];
+  return [...order.filter(k=>dims.has(k)), ...[...dims].filter(k=>!order.includes(k))];
+}
+
+function getWeakDims(results, allDims){
+  return allDims.map(d=>{
+    const scores=Object.values(results)
+      .filter(r=>r.dimScores && r.dimScores[d])
+      .map(r=>r.dimScores[d].pct);
+    if(!scores.length) return null;
+    const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+    return {dim:d, avg, count:scores.length};
+  }).filter(Boolean).filter(d=>d.avg<60).sort((a,b)=>a.avg-b.avg);
+}
+
+function clearResult(testId){
+  if(!confirm(`Clear your ${TEST_META[testId].label} results from this browser?`)) return;
+  localStorage.removeItem(`aptitude-result:${testId}`);
+  render();
+}
+
+function render(){
+  const results=loadAllResults();
+  const taken=Object.keys(results);
+  const main=document.getElementById("main");
+
+  if(!taken.length){
+    main.innerHTML=`
+      <div class="card">
+        <div class="empty">
+          <div class="icon">🗂️</div>
+          <h2>No results yet</h2>
+          <p class="muted">Take a test to see your results here. Results are automatically saved in this browser when you finish.</p>
+          <div class="btn-row" style="justify-content:center;margin-top:18px">
+            <a href="ai-ml.html" class="btn primary">🧠 Start: AI/ML →</a>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  let html="";
+
+  // ── Section 1: Tests taken ──────────────────────────────────────────────
+  html+=`<div class="card">
+    <div class="sec-head">
+      <h2>Tests taken <span class="pill" style="margin-left:6px">${taken.length}</span></h2>
+    </div>
+    <p class="faint">Click "Retake" to replace results, or "Clear" to remove them from this browser.</p>
+    <div class="test-grid">`;
+
+  for(const id of taken){
+    const data=results[id], meta=TEST_META[id];
+    const cls=rate(data.overall);
+    const dimKeys=data.dimScores ? Object.keys(data.dimScores) : [];
+    const dimsHtml=dimKeys.map(d=>{
+      const pct=(data.dimScores[d]||{}).pct||0;
+      const label=(DIM_META[d]||{label:d}).label;
+      return `<div class="dimrow">
+        <span class="dlabel">${label}</span>
+        <span class="dbar"><i class="${rate(pct)}" style="width:${pct}%"></i></span>
+        <span class="dpct">${pct}%</span>
+      </div>`;
+    }).join("");
+
+    html+=`<div class="tcard">
+      <div class="thead">
+        <div>
+          <div class="tname">${meta.icon} ${meta.label}</div>
+          <div class="tdate">${fmtDate(data.startedAt)}</div>
+        </div>
+        <div class="ring" style="--p:${data.overall}">
+          <b>${data.overall}%</b>
+          <small>overall</small>
+        </div>
+      </div>
+      <span class="pill ${cls}">${data.band === "strong" ? "Strong" : data.band === "promising" ? "Promising" : "Gaps to close"}</span>
+      <div class="dims" style="margin-top:12px">${dimsHtml}</div>
+      <div class="actions">
+        <a href="${meta.href}" class="btn sm">↩ Retake</a>
+        <a href="learn.html" class="btn sm">📚 Study guide</a>
+        <button class="btn sm danger" onclick="clearResult('${id}')">✕ Clear</button>
+      </div>
+    </div>`;
+  }
+  html+=`</div></div>`;
+
+  // ── Section 2: Dimension comparison (always shown if 1+ tests) ──────────
+  const allDims=getAllDims(results);
+  html+=`<div class="card">
+    <div class="sec-head">
+      <h2>Dimension breakdown</h2>
+      ${taken.length < 2 ? `<span class="pill">Take more tests to compare across them</span>` : `<span class="pill">${taken.length} tests compared</span>`}
+    </div>`;
+
+  if(taken.length >= 2){
+    const testIds=taken;
+    html+=`<div class="cmp-grid"><table class="cmp-table">
+      <thead><tr>
+        <th>Dimension</th>
+        ${testIds.map(id=>`<th>${TEST_META[id].icon} ${TEST_META[id].label.split(" ")[0]}</th>`).join("")}
+        ${testIds.length>=2 ? "<th>Trend</th>" : ""}
+      </tr></thead><tbody>`;
+    for(const d of allDims){
+      const lbl=(DIM_META[d]||{label:d}).label;
+      const cells=testIds.map(id=>{
+        const ds=(results[id].dimScores||{})[d];
+        if(!ds) return `<td class="muted">—</td>`;
+        const cl=rate(ds.pct);
+        return `<td>
+          <div class="cmp-cell">
+            <span class="cmp-bar"><i class="${cl}" style="width:${ds.pct}%"></i></span>
+            <span style="font-weight:600">${ds.pct}%</span>
+          </div>
+        </td>`;
+      });
+      let deltaHtml="";
+      if(testIds.length>=2){
+        const scores=testIds.map(id=>(results[id].dimScores||{})[d]?.pct).filter(v=>v!=null);
+        if(scores.length>=2){
+          const delta=scores[scores.length-1]-scores[0];
+          const cls=delta>0?"up":delta<0?"dn":"eq";
+          const sign=delta>0?"+":"";
+          deltaHtml=`<td><span class="cmp-delta ${cls}">${sign}${delta}%</span></td>`;
+        } else {
+          deltaHtml=`<td class="faint">—</td>`;
+        }
+      }
+      html+=`<tr><td class="dim-name">${lbl}</td>${cells.join("")}${deltaHtml}</tr>`;
+    }
+    html+=`</tbody></table></div>`;
+    html+=`<p class="faint" style="margin-top:10px">Trend compares your most recent test to your first for each dimension. Positive = improvement.</p>`;
+  } else {
+    // Single test: show simple bars
+    const id=taken[0], data=results[id];
+    html+=`<div style="margin-top:14px;display:grid;gap:10px">`;
+    for(const d of allDims){
+      const ds=(data.dimScores||{})[d]; if(!ds) continue;
+      const lbl=(DIM_META[d]||{label:d}).label;
+      const cl=rate(ds.pct);
+      html+=`<div>
+        <div style="display:flex;justify-content:space-between;font-size:.88rem;margin-bottom:4px">
+          <span class="muted">${lbl}</span>
+          <span style="font-weight:700">${ds.pct}%&nbsp;<span class="pill ${cl}" style="font-size:.7rem">${ds.correct}/${ds.total}</span></span>
+        </div>
+        <div style="height:8px;border-radius:999px;background:#0c1118;overflow:hidden">
+          <div style="height:100%;width:${ds.pct}%;border-radius:999px;background:${cl==="good"?"var(--good)":cl==="warn"?"var(--warn)":"var(--bad)"}"></div>
+        </div>
+      </div>`;
+    }
+    html+=`</div>
+    <div class="notice info" style="margin-top:16px">Take another test (e.g. Data Science or Computer Science once available) to see how your scores compare across them.</div>`;
+  }
+  html+=`</div>`;
+
+  // ── Section 3: Behavioral profile ────────────────────────────────────────
+  html+=`<div class="card">
+    <h2 style="margin-bottom:4px">Behavioral profile</h2>
+    <p class="faint">How you approached the questions — patterns the regular results report doesn't show.</p>`;
+
+  for(const id of taken){
+    const b=computeBehavioral(results[id]);
+    if(!b) continue;
+    const meta=TEST_META[id];
+    if(taken.length>1) html+=`<h3 style="margin:16px 0 8px;font-size:.95rem;color:var(--muted)">${meta.icon} ${meta.label}</h3>`;
+    html+=`<div class="beh-grid">`;
+
+    // Rush rate
+    const rushCls=b.rushPct>=40?"bad-bg":b.rushPct>=20?"warn-bg":"good-bg";
+    const rushInterp=b.rushPct>=40?"High — double-check rapid answers":b.rushPct>=20?"Moderate pacing":"Comfortable, unhurried pace";
+    html+=`<div class="bstat ${rushCls}">
+      <div class="bnum">${b.rushPct}%</div>
+      <div class="blabel">Questions answered in under 3 seconds</div>
+      <div class="binterp">${rushInterp}</div>
+    </div>`;
+
+    // Indecision / answer changes
+    const indCls=b.indecisionPct>=50?"warn-bg":"";
+    const indInterp=b.indecisionPct>=50?"Changed answers often — check if second thoughts helped or hurt":"Mostly decisive — changed answers occasionally";
+    html+=`<div class="bstat ${indCls}">
+      <div class="bnum">${b.indecisionPct}%</div>
+      <div class="blabel">Questions where you changed your answer</div>
+      <div class="binterp">${indInterp}</div>
+    </div>`;
+
+    // Timeout
+    const toCls=b.timeoutPct>=20?"bad-bg":b.timeoutPct>=10?"warn-bg":"";
+    const toInterp=b.timeoutPct>=20?"Several questions timed out — pacing practice may help":b.timeoutPct>=10?"A few time-outs — mostly on-pace":"Finished within time on almost all questions";
+    html+=`<div class="bstat ${toCls}">
+      <div class="bnum">${b.timeoutPct}%</div>
+      <div class="blabel">Questions that timed out</div>
+      <div class="binterp">${toInterp}</div>
+    </div>`;
+
+    // Revisit rate
+    const rvInterp=b.revisitPct>=30?"Revisited many questions — thoughtful but watch for second-guessing yourself off correct answers":b.revisitPct>=15?"Some revisiting — a sign of careful checking":"Mostly moved forward — limited backtracking";
+    html+=`<div class="bstat">
+      <div class="bnum">${b.revisitPct}%</div>
+      <div class="blabel">Questions you came back to review</div>
+      <div class="binterp">${rvInterp}</div>
+    </div>`;
+
+    // Avg time
+    const avgMin=Math.floor(b.avgSec/60), avgRemSec=b.avgSec%60;
+    const avgStr=avgMin>0?`${avgMin}m ${avgRemSec}s`:`${b.avgSec}s`;
+    html+=`<div class="bstat">
+      <div class="bnum">${avgStr}</div>
+      <div class="blabel">Average time per question</div>
+      <div class="binterp">Across all ${b.n} questions</div>
+    </div>`;
+
+    // Pressure accuracy (if available)
+    if(b.pressurePct !== null && b.calmPct !== null){
+      const gap=b.calmPct-b.pressurePct;
+      const pressInterp=gap>=15?"Notably worse under time pressure — accuracy drops near the deadline":gap>=5?"Slightly lower accuracy when the timer is running out":"Accuracy holds steady under time pressure — a good sign";
+      const pCls=gap>=15?"bad-bg":gap>=5?"warn-bg":"good-bg";
+      html+=`<div class="bstat ${pCls}">
+        <div class="bnum">${b.calmPct}% <span style="font-size:.8rem;color:var(--faint)">vs ${b.pressurePct}%</span></div>
+        <div class="blabel">Accuracy: relaxed vs. under pressure</div>
+        <div class="binterp">${pressInterp}</div>
+      </div>`;
+    }
+
+    html+=`</div>`;
+  }
+  html+=`</div>`;
+
+  // ── Section 4: Study focus ────────────────────────────────────────────────
+  const weakDims=getWeakDims(results, allDims);
+  if(weakDims.length){
+    html+=`<div class="card">
+      <h2 style="margin-bottom:4px">Study focus</h2>
+      <p class="faint">Areas scoring below 60% on average across your tests. The highest-priority ones first.</p>
+      <div class="focus-list">`;
+    for(const w of weakDims.slice(0,4)){
+      const meta=DIM_META[w.dim]||{label:w.dim, improve:""};
+      const countNote=w.count>1?` (average across ${w.count} tests)`:"";
+      html+=`<div class="focus-item">
+        <div class="fname">${meta.label} <span class="favg">${w.avg}%${countNote}</span></div>
+        <div class="fadv"><b>What to do:</b> ${meta.improve}</div>
+      </div>`;
+    }
+    html+=`</div></div>`;
+  } else if(taken.length){
+    html+=`<div class="card">
+      <h2 style="margin-bottom:8px">Study focus</h2>
+      <div class="notice info">All your dimensions are above 60% — no urgent weak spots. Keep up the practice to push towards 80%+ across the board.</div>
+    </div>`;
+  }
+
+  // ── Section 5: CTAs ────────────────────────────────────────────────────────
+  html+=`<div class="card" style="text-align:center">
+    <p class="muted" style="margin:0 0 14px">Want to revisit a specific test or study guide?</p>
+    <div class="btn-row" style="justify-content:center;flex-wrap:wrap">
+      <a href="ai-ml.html" class="btn primary">🧠 AI/ML test</a>
+      <a href="learn.html" class="btn">📚 Study guide</a>
+      <a href="index.html" class="btn">← All tests</a>
+    </div>
+  </div>`;
+
+  main.innerHTML=html;
+}
+
+render();
+</script>
+</body>
+</html>

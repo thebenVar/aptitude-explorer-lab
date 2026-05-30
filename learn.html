@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How to Think About These Questions — Study Guide</title>
+<style>
+  :root{
+    --bg:#0f1419; --panel:#171d26; --panel-2:#1f2733; --line:#2a3340;
+    --ink:#e8edf2; --muted:#9aa7b4; --faint:#6b7785;
+    --accent:#4f9cf9; --accent-2:#7c5cff;
+    --good:#34d399; --warn:#fbbf24; --bad:#f87171;
+    --radius:14px; --shadow:0 8px 30px rgba(0,0,0,.35); --maxw:880px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 600px at 70% -10%, #1b2533 0%, var(--bg) 55%) fixed;
+    color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; padding:26px 16px 80px;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto}
+  h1,h2,h3{line-height:1.25;margin:0 0 .4em}
+  h1{font-size:1.6rem;letter-spacing:-.01em}
+  h2{font-size:1.25rem;margin-top:6px}
+  p{margin:0 0 .7em}
+  a{color:var(--accent)}
+  .muted{color:var(--muted)} .faint{color:var(--faint);font-size:.86rem}
+
+  .brand{display:flex;align-items:center;gap:13px;margin-bottom:14px}
+  .brand .dot{width:42px;height:42px;border-radius:12px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:grid;place-items:center;font-weight:800;color:#fff;font-size:1.2rem;
+    box-shadow:0 6px 18px rgba(79,156,249,.35)}
+  .brand small{display:block;color:var(--muted);font-weight:500}
+
+  .card{background:linear-gradient(180deg,var(--panel) 0%, #141a23 100%);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:24px 26px;margin:0 0 18px}
+  .intro{border-left:3px solid var(--accent)}
+
+  .strategy{background:rgba(79,156,249,.08);border:1px solid rgba(79,156,249,.3);
+    border-radius:var(--radius);padding:18px 22px;margin:30px 0 16px}
+  .strategy h2{margin:0 0 6px} .strategy .tip{color:#cfe3ff}
+
+  .pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:.76rem;
+    font-weight:600;border:1px solid var(--line);color:var(--muted)}
+
+  .q{border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:0 0 14px;
+    background:var(--panel-2)}
+  .q .qhead{display:flex;gap:10px;align-items:center;margin-bottom:9px;flex-wrap:wrap}
+  .q .qnum{font-weight:800;color:var(--accent);font-size:.95rem}
+  .qprompt{font-size:1.06rem;font-weight:600;margin:2px 0 12px}
+  .opts{display:grid;gap:7px;margin:6px 0 4px}
+  .opt{display:flex;gap:11px;align-items:flex-start;padding:9px 13px;border-radius:9px;
+    border:1px solid var(--line);background:#141a23;font-size:.96rem}
+  .opt .key{flex:0 0 24px;height:24px;border-radius:6px;display:grid;place-items:center;
+    background:#0c1118;border:1px solid var(--line);font-weight:700;font-size:.8rem;color:var(--muted)}
+  .opt.correct{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.1)}
+  .opt.correct .key{background:var(--good);color:#06281d;border-color:var(--good)}
+  pre.code{background:#0c1118;border:1px solid var(--line);border-radius:10px;
+    padding:13px 15px;overflow:auto;font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    color:#cfe3ff;margin:0 0 12px}
+  .chart{margin:4px 0 12px;background:#0c1118;border:1px solid var(--line);border-radius:10px;padding:12px}
+
+  details{margin-top:6px}
+  summary{cursor:pointer;font-weight:650;color:var(--accent);padding:8px 0;list-style:none;
+    display:flex;align-items:center;gap:8px}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"💡";font-size:1rem}
+  summary:hover{filter:brightness(1.15)}
+  details[open] summary{margin-bottom:6px}
+  .think{border-top:1px dashed var(--line);padding-top:12px;margin-top:2px}
+  .think h4{margin:0 0 6px;font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  ol.steps{margin:0 0 12px;padding-left:22px}
+  ol.steps li{margin:0 0 6px}
+  .answer{border-radius:10px;padding:11px 14px;background:rgba(52,211,153,.1);
+    border:1px solid rgba(52,211,153,.4);margin:10px 0}
+  .answer b{color:var(--good)}
+  .trap{border-radius:10px;padding:11px 14px;background:rgba(251,191,36,.08);
+    border:1px solid rgba(251,191,36,.35);margin:10px 0;font-size:.94rem}
+  .trap b{color:var(--warn)}
+  code.inl{background:#0c1118;border:1px solid var(--line);border-radius:5px;padding:1px 6px;
+    font:13px ui-monospace,Menlo,Consolas,monospace;color:#cfe3ff}
+
+  .toc{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .toc a{text-decoration:none;font-size:.86rem;padding:6px 12px;border-radius:999px;
+    border:1px solid var(--line);color:var(--muted);background:var(--panel-2)}
+  .toc a:hover{border-color:var(--accent);color:var(--ink)}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .btn{appearance:none;border:1px solid var(--line);border-radius:10px;cursor:pointer;
+    padding:9px 16px;font-size:.92rem;font-weight:600;color:var(--ink);background:var(--panel-2)}
+  .btn:hover{border-color:var(--accent)}
+  a.btn{text-decoration:none;display:inline-flex;align-items:center}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent}
+
+  @media (max-width:560px){ .card,.strategy{padding:18px} body{padding:14px 10px 60px} }
+
+  /* ---------- upload + personalized review ---------- */
+  .dropzone2{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;
+    cursor:pointer;background:var(--panel-2);margin-top:14px;transition:.15s}
+  .dropzone2:hover{border-color:var(--accent)}
+  .dropzone2.over{border-color:var(--accent);background:rgba(79,156,249,.1)}
+
+  .review{display:none}
+  .review.show{display:block}
+  .scorehero{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:6px 0 18px}
+  .ring{--p:0;width:108px;height:108px;border-radius:50%;flex:0 0 auto;
+    background:radial-gradient(closest-side,var(--panel) 78%,transparent 80%),
+      conic-gradient(var(--accent) calc(var(--p)*1%),#2a3340 0);
+    display:grid;place-items:center;position:relative}
+  .ring b{font-size:1.5rem}
+  .ring small{position:absolute;bottom:22px;color:var(--muted);font-size:.66rem}
+  .dimbars{display:grid;gap:10px;margin:8px 0 4px}
+  .dimbar .l{display:flex;justify-content:space-between;font-size:.92rem;margin-bottom:4px}
+  .bar{height:8px;border-radius:999px;background:#0c1118;overflow:hidden}
+  .bar>i{display:block;height:100%;border-radius:999px}
+  .bar.good>i{background:var(--good)} .bar.warn>i{background:var(--warn)} .bar.bad>i{background:var(--bad)}
+  .insight{border:1px solid var(--line);border-radius:10px;padding:12px 15px;margin:9px 0;background:var(--panel-2)}
+  .insight.good{border-color:rgba(52,211,153,.4)}
+  .insight.warn{border-color:rgba(251,191,36,.4)}
+  .insight.bad{border-color:rgba(248,113,113,.4)}
+  .jump{color:var(--accent);cursor:pointer;text-decoration:underline;font-weight:600}
+
+  .rslot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 11px}
+  .tag{font-size:.76rem;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .tag.ok{color:var(--good);border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.1)}
+  .tag.no{color:var(--bad);border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.1)}
+  .tag.beh{color:var(--warn);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
+  .opt.your-pick{border-color:rgba(248,113,113,.55);background:rgba(248,113,113,.1)}
+  .opt.your-pick .key{background:var(--bad);color:#2a0d0d;border-color:var(--bad)}
+
+  .filterbar{display:none;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+  .filterbar.show{display:flex}
+  .q.dim-hide{display:none}
+
+  .legal{border-top:1px solid var(--line);margin-top:30px;padding-top:16px;
+    color:var(--faint);font-size:.78rem;line-height:1.55}
+  .legal p{margin:0 0 8px} .legal strong{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card intro">
+    <div style="text-align:right;margin-bottom:12px">
+      <a href="index.html" class="btn ghost sm">← Back to tests</a>
+    </div>
+    <div class="brand"><div class="dot">?</div>
+      <div><strong>How to Think About These Questions</strong>
+        <small>A study guide for the AI/ML aptitude check</small></div></div>
+    <p>This is not just an answer key. For every question it shows you <b>how to reason
+      your way to the answer</b> — the method, step by step — plus the common mistake to
+      avoid. Aptitude isn't fixed: once you see the <i>way of thinking</i> behind a
+      question type, you can solve new ones like it.</p>
+    <p class="muted">Try each question yourself first. Then click
+      <b style="color:var(--accent)">💡 How to think about it</b> to check your reasoning.</p>
+    <div class="controls">
+      <a class="btn primary" href="ai-ml.html">📝 Take the test →</a>
+      <a class="btn" href="dashboard.html">★ My progress</a>
+      <button class="btn" id="open-all">Reveal all explanations</button>
+      <button class="btn" id="close-all">Hide all</button>
+    </div>
+    <div class="dropzone2" id="dz">
+      <p style="margin:0"><b>Already took the test?</b> Your results are automatically
+        saved in this browser, so they should appear below. Or drop a <code class="inl">.json</code>
+        file here to load a different set of results.</p>
+      <p class="faint" style="margin:6px 0 0">Read in this browser only. Nothing is uploaded.</p>
+      <input id="file" type="file" accept=".json,application/json" style="display:none" />
+    </div>
+    <div id="upload-msg"></div>
+    <div class="toc">
+      <a href="#quant">Quantitative</a>
+      <a href="#logic">Logical Reasoning</a>
+      <a href="#stats">Statistics &amp; Probability</a>
+      <a href="#code">Step-by-Step Logic</a>
+      <a href="#data">Reading Charts</a>
+    </div>
+  </div>
+
+  <div class="card review" id="review"><!-- personalized review, built after upload --></div>
+
+  <div class="filterbar" id="filterbar">
+    <span class="faint">Show:</span>
+    <button class="btn" id="show-mistakes">Only my mistakes</button>
+    <button class="btn" id="show-all">All questions</button>
+  </div>
+
+  <div id="content"><!-- built by JS --></div>
+
+  <div class="card" style="text-align:center">
+    <p class="muted" style="margin:0 0 12px">Practised these and want to see how you'd score?</p>
+    <a class="btn primary" href="ai-ml.html">📝 Take the test →</a>
+  </div>
+
+  <footer class="legal">
+    <p><strong>Disclaimer.</strong> An informal, experimental study aid made for fun and
+      learning. It is <strong>not</strong> an official test, assessment, or
+      career-guidance service, and is not affiliated with any institution or examination
+      body. Any review shown here reflects <strong>only the options selected</strong> on a
+      short set of questions and is <strong>not</strong> a measure of intelligence,
+      ability, aptitude, or readiness for any course or career, nor a basis for any
+      decision. No professional, educational, psychological, or career advice is offered
+      or implied.</p>
+    <p><strong>Privacy — no data collected.</strong> Any results file you open here is
+      read entirely within your own browser. Nothing is uploaded, stored, transmitted,
+      tracked, or shared.</p>
+    <p>Designed by <strong>thebenVar</strong> for personal use, and shared here for
+      fun / experimentation.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/* ---- chart helpers (same as the test, so visuals match) ---- */
+function barChart(labels, values, unit){
+  const W=480,H=180,pad=30,gap=14, max=Math.max(...values);
+  const bw=(W-pad*2-gap*(values.length-1))/values.length;
+  let bars="",lbls="";
+  values.forEach((v,i)=>{
+    const h=Math.max(4,(v/max)*(H-pad*2)), x=pad+i*(bw+gap), y=H-pad-h;
+    bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="5" fill="#4f9cf9"/>`+
+          `<text x="${x+bw/2}" y="${y-6}" fill="#cfe3ff" font-size="12" text-anchor="middle">${v}</text>`;
+    lbls+=`<text x="${x+bw/2}" y="${H-pad+16}" fill="#9aa7b4" font-size="12" text-anchor="middle">${labels[i]}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="bar chart">`+
+    `<line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#2a3340"/>`+
+    bars+lbls+`<text x="${pad}" y="16" fill="#6b7785" font-size="11">${unit||""}</text></svg>`;
+}
+function lineChart(values, unit){
+  const W=480,H=180,pad=30, max=Math.max(...values),min=Math.min(...values);
+  const span=Math.max(1,max-min), step=(W-pad*2)/(values.length-1);
+  const pts=values.map((v,i)=>[pad+i*step, H-pad-((v-min)/span)*(H-pad*2)]);
+  const path=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const dots=pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="#7c5cff"/>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="line chart">`+
+    `<line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#2a3340"/>`+
+    `<path d="${path}" fill="none" stroke="#4f9cf9" stroke-width="2.5"/>`+dots+
+    `<text x="${pad}" y="16" fill="#6b7785" font-size="11">${unit||""}</text></svg>`;
+}
+
+/* ---- sections: strategy + questions with full reasoning ---- */
+const SECTIONS = [
+  {
+    id:"quant", label:"Quantitative / Numerical",
+    strategy:"Turn the words into numbers and one clear operation. Always ask: what is the <b>whole</b>, what is the <b>part</b>, and <b>what is being compared to what</b>? For 'percentage change', the base is the <i>starting</i> value, not 100.",
+    questions:[
+      { prompt:"A student's marks rose from 60 to 75. By what percentage did the marks increase?",
+        options:["15%","25%","20%","40%"], answer:1,
+        steps:["Find the actual increase: 75 − 60 = <b>15</b>.",
+               "Percentage increase compares that increase to the <b>starting</b> value: 15 ÷ 60.",
+               "15 ÷ 60 = 0.25, and 0.25 × 100 = <b>25%</b>."],
+        trap:"Don't just say 15%. The 15 is the size of the jump, but 'percentage increase' asks 'how big is the jump compared to where we started (60)?'" },
+      { prompt:"3 identical taps fill a tank in 4 minutes. How long do 6 such taps take to fill the same tank?",
+        options:["1 minute","2 minutes","4 minutes","8 minutes"], answer:1,
+        steps:["More taps means <b>less</b> time — they share the work. This is inverse proportion.",
+               "You doubled the taps (3 → 6), so the time is <b>halved</b>.",
+               "4 ÷ 2 = <b>2 minutes</b>."],
+        trap:"It's tempting to think 'more taps, more time'. Ask which way the relationship actually goes: more workers finish a fixed job faster." },
+      { prompt:"A school has 800 students. 35% of them play a sport. How many do NOT play a sport?",
+        options:["280","520","465","560"], answer:1,
+        steps:["The question asks for those who do <b>NOT</b> play. If 35% play, then 100% − 35% = <b>65%</b> don't.",
+               "65% of 800 = 0.65 × 800 = <b>520</b>.",
+               "(Check: 35% of 800 = 280 play; 800 − 280 = 520. Same answer.)"],
+        trap:"Re-read the question. 280 is the number who DO play — an easy wrong pick if you miss the word 'NOT'." },
+      { prompt:"Find the value of x:   2x + 5 = 17",
+        options:["5","6","11","8"], answer:1,
+        steps:["Undo the operations in reverse order. First remove the +5: subtract 5 from both sides → 2x = 12.",
+               "Now undo the ×2: divide both sides by 2 → x = 6."],
+        trap:"Do the +5 before the ×2 when undoing — reverse of normal order. Don't divide 17 by 2 first." },
+      { prompt:"₹2,000 is shared between two friends in the ratio 4 : 1. How much does the friend with the smaller share get?",
+        options:["₹400","₹500","₹250","₹800"], answer:0,
+        steps:["A ratio of 4 : 1 means the money is split into 4 + 1 = <b>5 equal parts</b>.",
+               "Each part = ₹2,000 ÷ 5 = <b>₹400</b>.",
+               "The smaller share is 1 part = <b>₹400</b> (the bigger share is 4 parts = ₹1,600)."],
+        trap:"Don't divide by 4. The total number of parts is 4 + 1 = 5, not 4." },
+      { prompt:"A number doubles every hour. It starts at 3. What is it after 4 hours?",
+        options:["24","48","12","81"], answer:1,
+        steps:["Doubling means ×2 each hour. Just step through it:",
+               "Start 3 → after 1h: 6 → 2h: 12 → 3h: 24 → 4h: <b>48</b>.",
+               "(Shortcut: 3 × 2 × 2 × 2 × 2 = 3 × 16 = 48.)"],
+        trap:"Doubling 4 times is ×2×2×2×2 (×16), not ×4×2 or '3 × 4'. Growth like this multiplies, it doesn't add." }
+    ]
+  },
+  {
+    id:"logic", label:"Logical & Abstract Reasoning",
+    strategy:"Find the <b>rule</b> that links the items, then apply it. For number series, look at the gaps between terms (and the gaps between the gaps). For word logic, watch the <b>direction</b> of a statement — 'all A are B' does not mean 'all B are A'.",
+    questions:[
+      { prompt:"Find the next number in the series:   2, 6, 12, 20, 30, ?",
+        options:["36","40","42","48"], answer:2,
+        steps:["Look at the gaps between terms: 6−2=4, 12−6=6, 20−12=8, 30−20=10.",
+               "The gaps grow by 2 each time: 4, 6, 8, 10 → next gap is <b>12</b>.",
+               "So the next term is 30 + 12 = <b>42</b>.",
+               "(Another view: the terms are 1×2, 2×3, 3×4, 4×5, 5×6, so next is 6×7 = 42.)"] },
+      { prompt:"All doctors have studied biology. Maya has studied biology. Which conclusion is logically valid?",
+        options:["Maya is a doctor.","Maya is not a doctor.",
+                 "We cannot conclude whether Maya is a doctor.","No doctor is named Maya."], answer:2,
+        steps:["'All doctors studied biology' tells you doctors are <i>inside</i> the group of biology-students.",
+               "But lots of non-doctors also study biology (nurses, teachers, students…).",
+               "Knowing Maya studied biology doesn't tell you which kind she is. So we <b>cannot conclude</b>."],
+        trap:"'All A are B' does NOT flip to 'all B are A'. This reversal is the most common logic error." },
+      { prompt:"What comes next:   J, F, M, A, M, ?   (Hint: think about what the letters could stand for.)",
+        options:["A","J","N","S"], answer:1,
+        steps:["These aren't random letters — they're the first letters of the <b>months</b>:",
+               "January, February, March, April, May…",
+               "The next month is <b>June</b> → J."],
+        trap:"Don't look for an alphabet gap pattern. Step back and ask 'what real-world list starts J, F, M, A, M?'" },
+      { prompt:"Using letter positions in the alphabet, CAT becomes 3-1-20 (C=3, A=1, T=20). Using the same idea, what does ADD become?",
+        options:["1-4-4","1-3-3","4-1-1","1-4-3"], answer:0,
+        steps:["The rule: replace each letter with its position in the alphabet (A=1, B=2, … Z=26).",
+               "A = 1, D = 4, D = 4.",
+               "So ADD → <b>1-4-4</b>."] },
+      { prompt:"Which one does NOT belong with the others?   Square, Circle, Triangle, Cube",
+        options:["Square","Circle","Triangle","Cube"], answer:3,
+        steps:["Find a property most of them share. Square, Circle and Triangle are all <b>flat (2D)</b> shapes.",
+               "A Cube is a <b>solid (3D)</b> object.",
+               "The odd one out is <b>Cube</b>."],
+        trap:"There can be tempting wrong groupings (e.g. 'circle has no corners'). Pick the property that cleanly splits 3 from 1." },
+      { prompt:"Find the next number in the series:   1, 1, 2, 3, 5, 8, ?",
+        options:["11","12","13","15"], answer:2,
+        steps:["Test 'each term = sum of the two before it': 1+1=2 ✓, 1+2=3 ✓, 2+3=5 ✓, 3+5=8 ✓.",
+               "So the next term is 5 + 8 = <b>13</b>.",
+               "(This famous pattern is the Fibonacci sequence.)"] }
+    ]
+  },
+  {
+    id:"stats", label:"Statistics & Probability Intuition",
+    strategy:"Numbers tell a story. Watch for a single <b>extreme value</b> dragging an average away from what's 'typical'. For probability, remember independent events have <b>no memory</b>, and that a very rare thing stays rare even after a 'positive' result.",
+    questions:[
+      { prompt:"Which set of numbers is MORE spread out (less consistent)?   Set A: 10, 10, 10, 10    Set B: 2, 8, 12, 18",
+        options:["Set A","Set B","They are equal","Cannot be determined"], answer:1,
+        steps:["'Spread' = how far apart the numbers are from each other.",
+               "Set A is all 10s — zero spread, perfectly consistent.",
+               "Set B ranges from 2 to 18 — clearly varied. So <b>Set B</b> is more spread out."],
+        trap:"Both sets have the same average (10). Spread is about variation, not the average — same centre can hide very different spreads." },
+      { prompt:"Five friends' monthly incomes (in thousands of rupees): 30, 32, 31, 33, 400. Which value best represents a 'typical' income for this group?",
+        options:["The average (add them up, divide by 5)","The middle value when sorted","The largest value","The total of all five"], answer:1,
+        steps:["The 400 is an <b>outlier</b> — far above the rest.",
+               "The average = (30+32+31+33+400)/5 = 105k. But nobody earns near 105k — it's pulled up by the one big value.",
+               "Sort them: 30, 31, 32, 33, 400 → the <b>middle value is 32</b>, which truly reflects most people. So the middle value (the median) is the better 'typical'."],
+        trap:"Averages are misleading when one value is extreme. The middle value resists outliers." },
+      { prompt:"You roll a normal six-sided dice once. What is the chance of getting an even number?",
+        options:["1 in 6","1 in 2","1 in 3","2 in 3"], answer:1,
+        steps:["List the outcomes: 1, 2, 3, 4, 5, 6 — six equally likely results.",
+               "The even ones are 2, 4, 6 → that's 3 of the 6.",
+               "3 out of 6 = <b>1 in 2</b> (a half)."] },
+      { prompt:"A test for a rare illness is 99% accurate. The illness affects only 1 in 10,000 people. A random person tests positive. How confident should you be they really have it?",
+        options:["About 99% — very confident","Very low — most positive results will be false alarms","Exactly 50%","100% — the test is accurate"], answer:1,
+        steps:["Don't reason with the 99% alone — picture <b>10,000 real people</b>.",
+               "About 1 person actually has the illness.",
+               "The test is wrong 1% of the time, so of the 9,999 healthy people it falsely flags ~100 as positive.",
+               "So positives ≈ 1 true + 100 false. A given positive is far more likely a <b>false alarm</b> → confidence is low."],
+        trap:"This is the famous base-rate trap: when something is very rare, even an accurate test produces mostly false positives. The disease's rarity matters as much as the test's accuracy." },
+      { prompt:"The average of five numbers is 20. Four of them are 18, 22, 19 and 21. What is the fifth number?",
+        options:["20","18","22","24"], answer:0,
+        steps:["Average × count = total. So the five numbers add up to 20 × 5 = <b>100</b>.",
+               "The four known numbers sum to 18 + 22 + 19 + 21 = <b>80</b>.",
+               "The fifth = 100 − 80 = <b>20</b>."],
+        trap:"Work backwards from the total. The average gives you the sum (100) — that's the key unlock." },
+      { prompt:"You toss a fair coin and get heads 5 times in a row. What is the chance the next toss is heads?",
+        options:["Less than half — tails is 'due'","One half","More than half — heads is on a streak","Cannot be determined"], answer:1,
+        steps:["A fair coin has <b>no memory</b> — it doesn't know what came before.",
+               "Each toss is independent, so the chance is always <b>one half</b>, no matter the streak."],
+        trap:"Feeling that tails is 'due' (or that heads is 'hot') is the gambler's fallacy. Past independent results never change the next probability." }
+    ]
+  },
+  {
+    id:"code", label:"Computational / Step-by-Step Logic",
+    strategy:"Don't read these like a sentence — <b>run them like a recipe</b>. Keep a tiny table of each value and update it line by line as you 'do' each step in order. No coding knowledge needed; just careful, ordered thinking.",
+    questions:[
+      { prompt:"Follow these steps. Start with x = 0, then add each number in the list to x, one at a time. What is x at the end?",
+        code:"x = 0\nfor each number in [1, 2, 3, 4]:\n    add that number to x",
+        options:["4","10","24","0"], answer:1,
+        steps:["Track x as you go: start x = 0.",
+               "Add 1 → x = 1. Add 2 → x = 3. Add 3 → x = 6. Add 4 → x = <b>10</b>.",
+               "(It's just 1 + 2 + 3 + 4 = 10.)"],
+        trap:"'Add to x' means keep a running total, not replace x. Update the same value each step." },
+      { prompt:"x is 5. Follow the rules below. Which letter gets shown?",
+        code:"if x is greater than 3:\n    if x is greater than 10:\n        show 'A'\n    otherwise:\n        show 'B'\notherwise:\n    show 'C'",
+        options:["A","B","C","Nothing"], answer:1,
+        steps:["First check: is 5 greater than 3? <b>Yes</b> — so we go inside the first block (we ignore the bottom 'otherwise → C').",
+               "Inside, next check: is 5 greater than 10? <b>No</b> — so we take that block's 'otherwise'.",
+               "That shows <b>'B'</b>."],
+        trap:"Follow the indentation like nested boxes. Because the first check passed, 'C' is never reached." },
+      { prompt:"Start with result = 1 and n = 4. Repeat the steps while n is more than 1. What is result at the end?",
+        code:"result = 1,  n = 4\nrepeat while n is more than 1:\n    result = result × n\n    reduce n by 1",
+        options:["4","10","24","12"], answer:2,
+        steps:["Make a table and loop. Start: result = 1, n = 4.",
+               "n=4 (>1): result = 1×4 = 4, then n = 3.",
+               "n=3 (>1): result = 4×3 = 12, then n = 2.",
+               "n=2 (>1): result = 12×2 = 24, then n = 1.",
+               "n=1 is not more than 1 → stop. result = <b>24</b> (that's 4 × 3 × 2)."],
+        trap:"Check the stop condition each lap, and remember the loop stops at n=1 (it doesn't multiply by 1)." },
+      { prompt:"Go through the list and count how many times the number 1 appears. What is the count?",
+        code:"list = [3, 1, 4, 1, 5]\ncount = how many times 1 appears",
+        options:["1","2","3","5"], answer:1,
+        steps:["Scan the list one item at a time, ticking each time you see a 1.",
+               "3 (no), 1 (tick → 1), 4 (no), 1 (tick → 2), 5 (no).",
+               "Count = <b>2</b>."],
+        trap:"Count occurrences of the value 1 — not the length of the list (5) and not the position." },
+      { prompt:"Follow these swap instructions in order. What are a and b at the end?",
+        code:"a = 2,  b = 7\nstore a in a temporary box (temp)\nset a to the value of b\nset b to the value of temp",
+        options:["a=2, b=7","a=7, b=2","a=7, b=7","a=2, b=2"], answer:1,
+        steps:["Start: a = 2, b = 7. Put a's value somewhere safe: temp = 2.",
+               "Set a to b's value: a = 7. (b is still 7.)",
+               "Set b to the saved temp: b = 2.",
+               "End: <b>a = 7, b = 2</b> — the values have swapped."],
+        trap:"The 'temp' box exists so you don't lose a's original value when you overwrite a. Without it, both would end up 7." },
+      { prompt:"Add up only the even numbers from 1 to 6. What total do you get?",
+        code:"total = 0\nfor each number from 1 to 6:\n    if the number is even:\n        add it to total",
+        options:["12","9","21","6"], answer:0,
+        steps:["Go 1 to 6, but only add the even ones (skip odd).",
+               "Evens are 2, 4, 6.",
+               "2 + 4 + 6 = <b>12</b>."],
+        trap:"The 'if even' line filters the list. Adding all of 1–6 (=21) ignores that condition." }
+    ]
+  },
+  {
+    id:"data", label:"Data Interpretation (Reading Charts)",
+    strategy:"Read the <b>labels and the axis first</b> so you know what the chart is about. Then answer <b>only what the chart can actually prove</b> — reject options that sound reasonable but the chart doesn't show. Watch the difference between 'highest' and 'grew the most'.",
+    questions:[
+      { prompt:"The bar chart shows a shop's visitors each month (in thousands). In which month did visitors grow the MOST compared with the month before?",
+        chart: barChart(["Jan","Feb","Mar","Apr","May"], [20,24,23,38,40], "thousand visitors"),
+        options:["February","March","April","May"], answer:2,
+        steps:["The question asks about <b>growth</b> — the jump from one month to the next, not the tallest bar.",
+               "Work out each change: Jan→Feb +4, Feb→Mar −1, Mar→Apr +15, Apr→May +2.",
+               "The biggest jump is +15, in <b>April</b>."],
+        trap:"May has the tallest bar, but it only grew +2 over April. 'Grew the most' = biggest change, not biggest value." },
+      { prompt:"The chart shows how many mistakes a person makes in a game over repeated attempts. What best describes the trend?",
+        chart: lineChart([90,70,55,48,45,44], "mistakes"),
+        options:["Mistakes keep rising","Mistakes fall quickly, then level off","Mistakes stay flat throughout","Mistakes fall steadily at a constant rate"], answer:1,
+        steps:["Look at the <b>shape</b> of the line, not single points.",
+               "It drops a lot early (90 → 70 → 55), then the drops get tiny (48, 45, 44) — it flattens.",
+               "That's '<b>falls quickly, then levels off</b>'."],
+        trap:"'Constant rate' would be a straight slanted line. Here the early drops are big and later ones small — that's not constant." },
+      { prompt:"In a class test: 4 students scored 40, 10 students scored 70, and 1 student scored 100. Which statement is TRUE?",
+        chart: barChart(["40","70","100"], [4,10,1], "students"),
+        options:["Most students scored 100","The most common score is 70","Everyone passed (scored 50 or more)","The average is exactly 70"], answer:1,
+        steps:["Check each claim against the chart.",
+               "'Most scored 100'? Only 1 did — false. 'Everyone passed (≥50)'? The 4 who scored 40 failed — false.",
+               "'Average is exactly 70'? Average = (4×40 + 10×70 + 1×100) ÷ 15 = 960 ÷ 15 = 64 — false.",
+               "'Most common score is 70'? 10 students got it, more than any other — <b>true</b>."],
+        trap:"Test every option against the data. The 'most common' value (the mode) is simply the tallest bar = 70." },
+      { prompt:"The chart shows how many items two shops sold. Which statement does the chart support?",
+        chart: barChart(["Shop A","Shop B"], [120,80], "items sold"),
+        options:["Shop A sold 50% more than Shop B","Shop A sold twice as much as Shop B","Shop B sold more than Shop A","They sold the same amount"], answer:0,
+        steps:["Shop A = 120, Shop B = 80. The extra A sold = 120 − 80 = 40.",
+               "Compare that extra to B: 40 is half of 80, i.e. <b>50% more</b>.",
+               "(Twice as much would be 160, not 120.)"],
+        trap:"'50% more' and 'twice as much' are different. Twice = 200%. A is 1.5× B, so it's 50% more." },
+      { prompt:"The chart shows one player's score (%) across five different games. What can you correctly conclude?",
+        chart: barChart(["G1","G2","G3","G4","G5"], [82,55,88,90,60], "% score"),
+        options:["The player does equally well in every game","The player's performance varies a lot from game to game","The player is hopeless","Games 2 and 5 were played the most"], answer:1,
+        steps:["Scan the bar heights: 82, 55, 88, 90, 60 — they jump around a lot.",
+               "So performance is inconsistent → '<b>varies a lot from game to game</b>'.",
+               "The other options claim things the chart doesn't show (how often games were played) or are clearly false (90% isn't 'hopeless')."],
+        trap:"Only pick what the chart can prove. It shows scores, not how many times each game was played — so that option is unsupported." },
+      { prompt:"The line shows the number of visitors to a stall each hour. Which reading of the chart is correct?",
+        chart: lineChart([10,25,60,80,55,30], "visitors"),
+        options:["Visitors kept rising the whole time","Visitors rose, peaked in the middle, then fell","Visitors stayed the same","Visitors only fell"], answer:1,
+        steps:["Trace the line left to right: 10 → 25 → 60 → 80 (highest), then 55 → 30.",
+               "It goes up to a peak in the middle, then comes back down.",
+               "So: '<b>rose, peaked in the middle, then fell</b>'."],
+        trap:"Don't latch onto only the first half ('kept rising') or only the second ('only fell'). Describe the whole shape." }
+    ]
+  }
+];
+
+/* ---- render ---- */
+const keys=["A","B","C","D","E","F"];
+const content=document.getElementById("content");
+const REG={};   // qid -> {q, card, sec, qNo}  (qid matches the test: q1..q30)
+let qNo=0;
+SECTIONS.forEach(sec=>{
+  const strat=document.createElement("div");
+  strat.className="strategy"; strat.id=sec.id;
+  strat.innerHTML=`<h2>${sec.label}</h2>
+    <div class="pill" style="margin-bottom:8px">How to approach this type</div>
+    <p class="tip" style="margin:0">${sec.strategy}</p>`;
+  content.appendChild(strat);
+
+  sec.questions.forEach(q=>{
+    qNo++;
+    const qid="q"+qNo;
+    const optsHtml=q.options.map((o,i)=>
+      `<div class="opt${i===q.answer?" correct":""}" data-i="${i}">
+         <span class="key">${keys[i]}</span><span>${o}${i===q.answer?'  &nbsp;✓':''}</span></div>`).join("");
+    const stepsHtml=q.steps.map(s=>`<li>${s}</li>`).join("");
+    const trapHtml=q.trap?`<div class="trap"><b>⚠ Common trap:</b> ${q.trap}</div>`:"";
+    const codeHtml=q.code?`<pre class="code">${q.code.replace(/</g,"&lt;")}</pre>`:"";
+    const chartHtml=q.chart?`<div class="chart">${q.chart}</div>`:"";
+
+    const card=document.createElement("div");
+    card.className="q"; card.id="card-"+qid; card.dataset.dim=sec.id;
+    card.innerHTML=`
+      <div class="qhead"><span class="qnum">Q${qNo}</span>
+        <span class="pill">${sec.label}</span></div>
+      <div class="rslot" id="rslot-${qid}" style="display:none"></div>
+      <div class="qprompt">${q.prompt}</div>
+      ${codeHtml}${chartHtml}
+      <details>
+        <summary>How to think about it</summary>
+        <div class="think">
+          <h4>Step by step</h4>
+          <ol class="steps">${stepsHtml}</ol>
+          ${trapHtml}
+          <div class="answer"><b>Answer: ${keys[q.answer]}.</b> ${q.options[q.answer]}</div>
+          <h4 style="margin-top:12px">All options</h4>
+          <div class="opts">${optsHtml}</div>
+        </div>
+      </details>`;
+    content.appendChild(card);
+    REG[qid]={q, card, sec, qNo};
+  });
+});
+
+/* ---- reveal/hide all ---- */
+document.getElementById("open-all").addEventListener("click",
+  ()=>document.querySelectorAll("details").forEach(d=>d.open=true));
+document.getElementById("close-all").addEventListener("click",
+  ()=>document.querySelectorAll("details").forEach(d=>d.open=false));
+
+/* =====================================================================
+   PERSONALIZED REVIEW — upload the results .json from the test
+===================================================================== */
+const DIM_LABEL={quant:"Quantitative",logic:"Logical Reasoning",
+  stats:"Statistics & Probability",code:"Step-by-Step Logic",data:"Reading Charts"};
+function rate(p){ return p>=70?"good":p>=45?"warn":"bad"; }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+// same encoding the test uses
+function checksum(str){ let h=5381; for(let i=0;i<str.length;i++){ h=((h<<5)+h+str.charCodeAt(i))>>>0; } return h.toString(16); }
+function b64decode(b64){ return decodeURIComponent(escape(atob(b64))); }
+
+const dz=document.getElementById("dz");
+const fileEl=document.getElementById("file");
+const uploadMsg=document.getElementById("upload-msg");
+function msg(html,cls){ uploadMsg.innerHTML=`<div class="insight ${cls||''}" style="margin-top:12px">${html}</div>`; }
+
+dz.addEventListener("click", ()=>fileEl.click());
+dz.addEventListener("dragover", e=>{e.preventDefault();dz.classList.add("over");});
+dz.addEventListener("dragleave", ()=>dz.classList.remove("over"));
+dz.addEventListener("drop", e=>{e.preventDefault();dz.classList.remove("over");
+  if(e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);});
+fileEl.addEventListener("change", e=>{ if(e.target.files[0]) readFile(e.target.files[0]); });
+
+function readFile(file){
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const outer=JSON.parse(r.result);
+      if(outer.format!=="aptitude-readiness-result" || !outer.payload){
+        msg("That doesn't look like a test results file. Use the <code class='inl'>.json</code> you downloaded at the end of the test.","bad"); return;
+      }
+      const json=b64decode(outer.payload);
+      const tampered=checksum(json)!==outer.checksum;
+      analyze(JSON.parse(json), tampered);
+    }catch(err){ msg("Couldn't read that file ("+escapeHtml(err.message)+").","bad"); }
+  };
+  r.onerror=()=>msg("Failed to read the file.","bad");
+  r.readAsText(file);
+}
+
+function analyze(data, tampered){
+  const pq=data.perQuestion||[];
+  const byId={}; pq.forEach(p=>byId[p.qid]=p);
+  let answered=0, correct=0;
+
+  // annotate every question card with the student's outcome + behavior
+  Object.keys(REG).forEach(qid=>{
+    const p=byId[qid], {card,q}=REG[qid];
+    const slot=card.querySelector(".rslot");
+    card.classList.remove("dim-hide");
+    if(!p){ slot.style.display="none"; return; }
+    answered++; if(p.isCorrect) correct++;
+    if(p.answer!=null && !p.isCorrect){
+      const pick=card.querySelector('.opts .opt[data-i="'+p.answer+'"]');
+      if(pick && !pick.classList.contains("correct")) pick.classList.add("your-pick");
+    }
+    const tags=[];
+    if(p.answer==null) tags.push('<span class="tag no">Left blank</span>');
+    else if(p.isCorrect) tags.push('<span class="tag ok">✓ You got this right</span>');
+    else tags.push('<span class="tag no">✗ You picked '+keys[p.answer]+' &middot; answer is '+keys[q.answer]+'</span>');
+    tags.push('<span class="tag">'+(p.totalMs/1000).toFixed(1)+'s</span>');
+    if(p.wasRapid) tags.push('<span class="tag beh">answered fast</span>');
+    if(p.timedOut) tags.push('<span class="tag beh">ran out of time</span>');
+    const nch=p.changes?p.changes.length:0;
+    if(nch>0){
+      const path=[p.changes[0].from, ...p.changes.map(c=>c.to)].map(x=>keys[x]).join("→");
+      tags.push('<span class="tag beh">changed '+nch+'× ('+path+')</span>');
+    }
+    if(p.visits>1) tags.push('<span class="tag beh">revisited '+p.visits+'×</span>');
+    slot.innerHTML=tags.join("");
+    slot.style.display="flex";
+    if(!p.isCorrect) card.querySelector("details").open=true; // open explanations for misses
+  });
+
+  buildReview(data, pq, answered, correct, tampered);
+  document.getElementById("filterbar").classList.add("show");
+  uploadMsg.innerHTML="";
+  document.getElementById("review").scrollIntoView({behavior:"smooth"});
+}
+
+function buildReview(data, pq, answered, correct, tampered){
+  const s=data.dimScores||{};
+  const dims=Object.keys(s);
+  const sorted=[...dims].sort((a,b)=>s[b].pct-s[a].pct);
+  const strongest=sorted[0], weakest=sorted[sorted.length-1];
+
+  const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+  const acc=a=>a.length?Math.round(a.filter(p=>p.isCorrect).length/a.length*100):null;
+  const qlink=qid=>`<span class="jump" data-jump="${qid}">Q${REG[qid]?REG[qid].qNo:qid.replace('q','')}</span>`;
+
+  const wrong=pq.filter(p=>!p.isCorrect && p.answer!=null);
+  const blanks=pq.filter(p=>p.answer==null);
+  const rapid=pq.filter(p=>p.wasRapid);
+  const rapidWrong=rapid.filter(p=>!p.isCorrect);
+  let c2w=0,w2c=0; const c2wQ=[];
+  pq.forEach(p=>(p.changes||[]).forEach(ch=>{
+    const fc=ch.from===p.correctAnswer, tc=ch.to===p.correctAnswer;
+    if(fc&&!tc){ c2w++; if(!c2wQ.includes(p.qid)) c2wQ.push(p.qid); }
+    if(!fc&&tc) w2c++;
+  }));
+  const wrongByDim={}; wrong.concat(blanks).forEach(p=>{(wrongByDim[p.dim]=wrongByDim[p.dim]||[]).push(p.qid);});
+  const pressured=pq.filter(p=>p.answeredNearDeadline||p.timedOut);
+  const calm=pq.filter(p=>!(p.answeredNearDeadline||p.timedOut));
+
+  const dimBars=sorted.map(d=>{
+    const ds=s[d], cls=rate(ds.pct);
+    return `<div class="dimbar"><div class="l"><span>${DIM_LABEL[d]||d}</span>
+      <span>${ds.pct}% &middot; ${ds.correct}/${ds.total}</span></div>
+      <div class="bar ${cls}"><i style="width:${ds.pct}%"></i></div></div>`;
+  }).join("");
+
+  const ins=[];
+  ins.push(`<div class="insight good"><b>Strongest area: ${DIM_LABEL[strongest]} — ${s[strongest].pct}%.</b> This is a real asset for AI/ML. Build from it.</div>`);
+  ins.push(`<div class="insight bad"><b>Biggest opportunity: ${DIM_LABEL[weakest]} — ${s[weakest].pct}%.</b> Studying here moves your score the most. Read its strategy box, then redo: ${(wrongByDim[weakest]||[]).map(qlink).join(", ")||"(all correct — now push for speed)"}.</div>`);
+
+  if(rapidWrong.length){
+    ins.push(`<div class="insight warn"><b>Slow down — speed cost you marks.</b> You answered ${rapid.length} question(s) in under 3 seconds, and ${rapidWrong.length} were wrong: ${rapidWrong.map(p=>qlink(p.qid)).join(", ")}. These look like snap guesses; working the method would likely flip them.</div>`);
+  } else if(rapid.length>=5){
+    ins.push(`<div class="insight good"><b>Fast and accurate.</b> ${rapid.length} answers came in under 3 seconds and held up — good instincts.</div>`);
+  }
+
+  if(c2w>w2c && c2w>0){
+    ins.push(`<div class="insight warn"><b>Trust your first instinct more.</b> You switched away from a correct answer ${c2w} time(s) and only rescued a wrong one ${w2c} time(s). On ${c2wQ.map(qlink).join(", ")} your first pick was right but you changed it. When torn, your initial read is often better.</div>`);
+  } else if(w2c>c2w && w2c>0){
+    ins.push(`<div class="insight good"><b>Reviewing works for you.</b> Re-checking fixed ${w2c} answer(s) and broke only ${c2w}. Keep using spare time to revisit.</div>`);
+  }
+
+  if(wrong.length){
+    const wA=avg(wrong.map(p=>p.totalMs))/1000, rA=avg(pq.filter(p=>p.isCorrect).map(p=>p.totalMs))/1000;
+    if(wA>rA+3) ins.push(`<div class="insight"><b>Your misses are concept gaps, not speed.</b> You actually spent <i>longer</i> on the ones you got wrong (${wA.toFixed(0)}s vs ${rA.toFixed(0)}s on correct ones). More time won't help — learning the approach will. The explanations below are the fix.</div>`);
+    else if(rA>wA+3) ins.push(`<div class="insight warn"><b>Your misses were rushed.</b> You spent less time on wrong answers (${wA.toFixed(0)}s vs ${rA.toFixed(0)}s). Giving the harder questions a few more seconds should help.</div>`);
+  }
+
+  if(pressured.length>=2 && acc(pressured)!=null && acc(calm)!=null){
+    if(acc(pressured)<acc(calm)-15) ins.push(`<div class="insight warn"><b>Time pressure hurts you.</b> When the timer nearly ran out you scored ${acc(pressured)}% vs ${acc(calm)}% when comfortable. Practising against a clock will build composure.</div>`);
+    else if(acc(pressured)>=acc(calm)) ins.push(`<div class="insight good"><b>You hold up under pressure.</b> ${acc(pressured)}% on timer-pressured questions vs ${acc(calm)}% otherwise.</div>`);
+  }
+
+  if(blanks.length) ins.push(`<div class="insight warn"><b>${blanks.length} left blank:</b> ${blanks.map(p=>qlink(p.qid)).join(", ")}. Always put your best guess — nothing is lost for a wrong answer.</div>`);
+
+  const plan=`<h3 style="margin-top:16px">Your study plan</h3>
+    <ol class="steps">
+      <li>Read the <b>${DIM_LABEL[weakest]}</b> strategy box, then re-attempt your missed questions there without peeking.</li>
+      <li>Work through your other mistakes below — their explanations are already open. Cover the steps, try, then check.</li>
+      <li>After a few days, retake the test (<code class="inl">index.html</code>) and watch ${DIM_LABEL[weakest]} climb.</li>
+    </ol>`;
+
+  const overall=data.overall;
+  const review=document.getElementById("review");
+  review.innerHTML=`
+    ${tampered?`<div class="insight bad"><b>⚠ Note:</b> this file's checksum doesn't match its contents — it may have been edited, so treat the numbers with caution.</div>`:""}
+    <h2>Your Personalized Review${data.student?` — ${escapeHtml(data.student)}`:""}</h2>
+    <div class="scorehero">
+      <div class="ring" style="--p:${overall}"><div><b>${overall}%</b></div><small>overall</small></div>
+      <div>
+        <p style="margin:0 0 6px">You answered <b>${correct}</b> of <b>${answered}</b> correctly. Below is what your answers — and <i>how</i> you answered — reveal.</p>
+        <p class="faint" style="margin:0">Your mistakes are marked on each question and their explanations opened automatically.</p>
+      </div>
+    </div>
+    <h3>Where you stand, area by area</h3>
+    <div class="dimbars">${dimBars}</div>
+    <h3 style="margin-top:16px">What stands out</h3>
+    ${ins.join("")}
+    ${plan}`;
+  review.classList.add("show");
+
+  review.querySelectorAll("[data-jump]").forEach(el=>el.addEventListener("click",()=>{
+    const c=(REG[el.getAttribute("data-jump")]||{}).card;
+    if(c){ c.querySelector("details").open=true; c.scrollIntoView({behavior:"smooth",block:"center"});
+      c.style.outline="2px solid var(--accent)"; c.style.outlineOffset="3px";
+      setTimeout(()=>{c.style.outline="";c.style.outlineOffset="";},1600); }
+  }));
+}
+
+/* ---- filter to mistakes ---- */
+document.getElementById("show-mistakes").addEventListener("click", ()=>{
+  Object.values(REG).forEach(({card})=>{
+    const isMistake = card.querySelector(".rslot .tag.no")!=null;
+    card.classList.toggle("dim-hide", !isMistake);
+  });
+});
+document.getElementById("show-all").addEventListener("click", ()=>{
+  Object.values(REG).forEach(({card})=>card.classList.remove("dim-hide"));
+});
+
+/* ---- auto-load from localStorage on page load ---- */
+function autoLoadFromStorage(){
+  try{
+    const testNames={
+      "ai-ml":"AI/ML",
+      "ds":"Data Science",
+      "cs":"Computer Science"
+    };
+    let found=null, foundKey=null;
+    for(const [testId, label] of Object.entries(testNames)){
+      const key=`aptitude-result:${testId}`;
+      const stored=localStorage.getItem(key);
+      if(stored){
+        found={stored, testId, label};
+        foundKey=key;
+        break;
+      }
+    }
+    if(!found) return;
+    const outer=JSON.parse(found.stored);
+    if(outer.format!=="aptitude-readiness-result" || !outer.payload) return;
+    const json=b64decode(outer.payload);
+    const tampered=checksum(json)!==outer.checksum;
+    const data=JSON.parse(json);
+    analyze(data,tampered);
+    const dz=document.getElementById("dz");
+    dz.innerHTML=`<p style="margin:0"><b>✓ Reviewing your ${found.label} results</b></p>
+      <p class="faint" style="margin:6px 0 0">Saved in this browser. <button class="btn sm" id="clear-storage" style="margin-top:6px">Clear &amp; upload different file</button></p>`;
+    document.getElementById("clear-storage").addEventListener("click", ()=>{
+      localStorage.removeItem(foundKey);
+      location.reload();
+    });
+  }catch(err){}
+}
+window.addEventListener("load", autoLoadFromStorage);
+</script>
+</body>
+</html>
