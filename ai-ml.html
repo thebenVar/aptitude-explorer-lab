@@ -1035,6 +1035,7 @@ function readResultsFile(file){
 }
 
 function renderAdminReport(data, tampered){
+  $("#admin-report").classList.remove("hidden");
   const s=data.dimScores;
   let pqHtml="";
   data.perQuestion.forEach(pq=>{
