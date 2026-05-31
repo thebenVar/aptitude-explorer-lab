@@ -909,7 +909,10 @@ function loadStoredAttempts(){
   try{
     const parsed=JSON.parse(raw);
     const arr=Array.isArray(parsed)?parsed:[parsed];
-    return arr.map(w=>JSON.parse(b64decode(w.payload)));
+    return arr
+      .filter(w=>w && w.payload)
+      .map(w=>{ try{ return JSON.parse(b64decode(w.payload)); }catch(e){ return null; } })
+      .filter(Boolean);
   }catch(e){ return []; }
 }
 function shuffle(arr){
@@ -979,7 +982,8 @@ function saveToLocalStorage(){
   const wrapper={ format:"aptitude-readiness-result", checksum:checksum(json), payload:b64encode(json) };
   const raw=localStorage.getItem(`aptitude-result:${TEST_ID}`);
   let arr=[];
-  try{ const parsed=JSON.parse(raw); arr=Array.isArray(parsed)?parsed:[parsed]; }catch(e){}
+  try{ const parsed=JSON.parse(raw); if(Array.isArray(parsed)) arr=parsed; else if(parsed) arr=[parsed]; }catch(e){}
+  arr=arr.filter(w=>w && w.payload);
   arr.push(wrapper);
   localStorage.setItem(`aptitude-result:${TEST_ID}`, JSON.stringify(arr));
 }
