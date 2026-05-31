@@ -62,9 +62,11 @@ three allowed values so each bank is internally consistent.
 | Medium     | 10    | two steps or a small twist                          |
 | Hard       | 4     | multi-step, a trap distractor, or counter-intuitive |
 
-Across a full bank: **30 easy / 50 medium / 20 hard**. The existing 30 questions
-already lean easy–medium, so weight new items slightly toward medium and hard to
-hit the per-dimension target.
+Across a full bank this works out to roughly **30 easy / 50 medium / 20 hard**.
+Treat these numbers as a **target shape, not a strict quota** — the existing 30
+questions already lean easy–medium, so weight new items toward medium and hard to
+move the bank in the right direction. Landing close to the shape is success;
+relabeling or rewriting good questions just to hit exact counts is not.
 
 `difficulty` and `timer` are intentionally **not coupled** in this blueprint.
 Difficulty should be labeled at the data level now; any timer policy can be
@@ -115,9 +117,13 @@ Every new question must pass **all** of these before it's accepted:
    confirm the `answer` index. Check chart values support the stated correct answer.
 3. **Editorial QA:** run each item through the Section 5 checklist; cut or rewrite
    anything that fails. Check the bank-level subtype and difficulty distributions.
-4. **Integrate:** append to the file's `QUESTIONS` array with sequential ids and
-   explicit `difficulty` values; keep the existing 30 intact and backfill them if
-   they do not already carry difficulty metadata.
+4. **Backfill the original 30 (explicit task):** none of the existing questions
+   carry a `difficulty` value today, so each must be labelled `easy`/`medium`/`hard`.
+   This is real per-assessment work — **~30 judgement calls per file, ~240 across
+   all 8 assessments** — not an afterthought. Do it as a distinct pass before or
+   alongside authoring, keeping the question content itself intact.
+5. **Integrate:** append the new items to the file's `QUESTIONS` array with
+   sequential ids and explicit `difficulty` values; keep the existing 30 intact.
 
 ---
 
@@ -128,8 +134,10 @@ After expanding a file, confirm:
 - [ ] Exactly **100** question objects in the array.
 - [ ] Exactly **20** per dimension (`grep` count of each `dim:` key).
 - [ ] All `id`s unique and sequential.
-- [ ] Every question has a valid `difficulty` value: `easy`, `medium`, or `hard`.
-- [ ] Difficulty totals match the bank target: **30 easy / 50 medium / 20 hard**.
+- [ ] Every question has a valid `difficulty` value: `easy`, `medium`, or `hard`
+      (including the backfilled original 30 — see Section 6).
+- [ ] Difficulty totals are **in the neighbourhood** of 30 easy / 50 medium / 20 hard.
+      This is a guide, not a pass/fail gate — small deviations are fine.
 - [ ] Every `answer` is a valid index into its `options` array.
 - [ ] Open in a browser → start the assessment → a 30-question sitting runs with
       no console errors and renders charts/code blocks correctly.
@@ -145,3 +153,17 @@ After expanding a file, confirm:
 - Modifying the runtime question-selection engine to use difficulty.
 - Changing timer behavior based on difficulty.
 - Bundling unrelated bug fixes into the content program.
+
+---
+
+## 9. Decision Log
+
+- **`difficulty` is a first-class field, decoupled from `timer`.** Difficulty is
+  recorded as data-level metadata (`easy`/`medium`/`hard`); the runtime does not
+  consume it yet. `timer` stays an independent field — the two are not coupled, so
+  timer policy can change later without touching the difficulty taxonomy.
+- **The 30/50/20 difficulty mix is suggestive, not a gate.** It's a target shape to
+  steer authoring, not a pass/fail check. Landing in the neighbourhood is success;
+  we will not relabel or rewrite sound questions just to hit exact counts.
+- **The original 30 per assessment get backfilled with difficulty labels.** Treated
+  as explicit work (~240 items total), content left intact.
