@@ -473,6 +473,20 @@ const keys=["A","B","C","D","E","F"];
 const content=document.getElementById("content");
 const REG={};   // qid -> {q, card, sec, qNo}  (qid matches the test: q1..q30)
 let qNo=0;
+
+const seenQids=getSeenQids("ai-ml");
+if(seenQids.size===0){
+  content.style.display="none";
+  const _empty=document.createElement("div");
+  _empty.className="card";
+  _empty.style.cssText="text-align:center;padding:2.5rem";
+  _empty.innerHTML=`<p style="font-size:2rem;margin-bottom:10px">📋</p>
+    <h2>Take the AI/ML test first</h2>
+    <p class="muted" style="max-width:42ch;margin:8px auto">The study guide only shows questions you've already attempted — so it doesn't spoil them before you've had a go.</p>
+    <a href="ai-ml.html" class="btn primary" style="display:inline-block;margin-top:16px">📝 Start the AI/ML assessment →</a>`;
+  content.parentNode.insertBefore(_empty, content);
+}
+
 SECTIONS.forEach(sec=>{
   const strat=document.createElement("div");
   strat.className="strategy"; strat.id=sec.id;
@@ -480,10 +494,13 @@ SECTIONS.forEach(sec=>{
     <div class="pill" style="margin-bottom:8px">How to approach this type</div>
     <p class="tip" style="margin:0">${sec.strategy}</p>`;
   content.appendChild(strat);
+  let _secHasQ=false;
 
   sec.questions.forEach(q=>{
     qNo++;
     const qid="q"+qNo;
+    if(seenQids.size>0 && !seenQids.has(qid)) return;
+    _secHasQ=true;
     const optsHtml=q.options.map((o,i)=>
       `<div class="opt${i===q.answer?" correct":""}" data-i="${i}">
          <span class="key">${keys[i]}</span><span>${o}${i===q.answer?'  &nbsp;✓':''}</span></div>`).join("");
@@ -514,6 +531,7 @@ SECTIONS.forEach(sec=>{
     content.appendChild(card);
     REG[qid]={q, card, sec, qNo};
   });
+  if(!_secHasQ) content.removeChild(strat);
 });
 
 /* ---- reveal/hide all ---- */
@@ -532,6 +550,16 @@ function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":
 // same encoding the test uses
 function checksum(str){ let h=5381; for(let i=0;i<str.length;i++){ h=((h<<5)+h+str.charCodeAt(i))>>>0; } return h.toString(16); }
 function b64decode(b64){ return decodeURIComponent(escape(atob(b64))); }
+function getSeenQids(testId){
+  const raw=localStorage.getItem(`aptitude-result:${testId}`);
+  if(!raw) return new Set();
+  try{
+    const parsed=JSON.parse(raw);
+    const arr=Array.isArray(parsed)?parsed:[parsed];
+    const seen=arr.flatMap(w=>{try{return JSON.parse(b64decode(w.payload)).questionsShown||[];}catch(e){return [];}});
+    return new Set(seen);
+  }catch(e){ return new Set(); }
+}
 
 const dz=document.getElementById("dz");
 const fileEl=document.getElementById("file");
@@ -710,31 +738,32 @@ document.getElementById("show-all").addEventListener("click", ()=>{
 /* ---- auto-load from localStorage on page load ---- */
 function autoLoadFromStorage(){
   try{
-    const testNames={
-      "ai-ml":"AI/ML",
-      "ds":"Data Science",
-      "ds":"Data Science",
-      "cs":"Computer Science"
-    };
-    let found=null, foundKey=null;
-    for(const [testId, label] of Object.entries(testNames)){
+    const TEST_NAMES={"ai-ml":"AI/ML","ds":"Data Science","cs":"Computer Science",
+      "medicine":"Medicine","law":"Law","commerce":"Commerce",
+      "engineering":"Engineering","design":"Design"};
+    let foundData=null, foundWrapper=null, foundKey=null, foundLabel=null;
+    for(const [testId, label] of Object.entries(TEST_NAMES)){
       const key=`aptitude-result:${testId}`;
-      const stored=localStorage.getItem(key);
-      if(stored){
-        found={stored, testId, label};
-        foundKey=key;
+      const raw=localStorage.getItem(key);
+      if(!raw) continue;
+      try{
+        const parsed=JSON.parse(raw);
+        const arr=Array.isArray(parsed)?parsed:[parsed];
+        const decoded=arr.map(w=>({w,data:JSON.parse(b64decode(w.payload))}))
+                         .sort((a,b)=>new Date(a.data.startedAt)-new Date(b.data.startedAt));
+        const latest=decoded[decoded.length-1];
+        foundData=latest.data; foundWrapper=latest.w;
+        foundKey=key; foundLabel=label;
         break;
-      }
+      }catch(e){ continue; }
     }
-    if(!found) return;
-    const outer=JSON.parse(found.stored);
-    if(outer.format!=="aptitude-readiness-result" || !outer.payload) return;
-    const json=b64decode(outer.payload);
-    const tampered=checksum(json)!==outer.checksum;
-    const data=JSON.parse(json);
-    analyze(data,tampered);
+    if(!foundData) return;
+    const json=b64decode(foundWrapper.payload);
+    const tampered=checksum(json)!==foundWrapper.checksum;
+    analyze(foundData,tampered);
     const dz=document.getElementById("dz");
-    dz.innerHTML=`<p style="margin:0"><b>✓ Reviewing your ${found.label} results</b></p>
+    const attemptStr=foundData.attemptNumber?` — Attempt ${foundData.attemptNumber}`:"";
+    dz.innerHTML=`<p style="margin:0"><b>✓ Reviewing your ${foundLabel} results${attemptStr}</b></p>
       <p class="faint" style="margin:6px 0 0">Saved in this browser. <button class="btn sm" id="clear-storage" style="margin-top:6px">Clear &amp; upload different file</button></p>`;
     document.getElementById("clear-storage").addEventListener("click", ()=>{
       localStorage.removeItem(foundKey);

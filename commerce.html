@@ -716,7 +716,7 @@ document.querySelectorAll("[data-logout]").forEach(b=>b.addEventListener("click"
 
 /* ── test ── */
 $("#start-btn").addEventListener("click", ()=>{
-  APP.questions=BANK.slice();
+  APP.questions=selectQuestionsForAttempt();
   APP.resp=APP.questions.map(q=>({
     qid:q.id, dim:q.dim, answer:null, firstShownPerf:0, firstAnswerPerf:0,
     totalMs:0, visits:0, changes:[], timedOut:false, answeredNearDeadline:false
@@ -834,6 +834,14 @@ function finishTest(){
 }
 function renderReport(){
   const s=computeScores(), bt=BAND_TEXT[s.band];
+  const _att=loadStoredAttempts();
+  const _attemptNum=_att.length;
+  const _seen=new Set(_att.flatMap(a=>a.questionsShown||[]));
+  const _remaining=Math.max(0,BANK.length-_seen.size);
+  const _attemptLabel=_attemptNum>1
+    ?(_remaining>0?`Attempt ${_attemptNum} · ${_remaining} fresh question${_remaining!==1?"s":""} remaining`
+      :`Attempt ${_attemptNum} · All questions covered — pool will reset`)
+    :`Attempt ${_attemptNum}`;
   let dimHtml="";
   Object.keys(CONFIG.dims).forEach(d=>{
     const ds=s.dimScores[d], meta=CONFIG.dims[d], cls=rate(ds.pct);
@@ -849,7 +857,7 @@ function renderReport(){
   $("#report-card").innerHTML=`
     <div class="brand"><div class="dot">Com</div>
       <div><strong>Your Aptitude Report</strong>
-        <small>Commerce &amp; Finance readiness &middot; ${new Date(APP.startedAt).toLocaleDateString()}</small></div></div>
+        <small>Commerce &amp; Finance readiness &middot; ${new Date(APP.startedAt).toLocaleDateString()} · ${_attemptLabel}</small></div></div>
     <div class="scorehero">
       <div class="ring" style="--p:${s.overall}"><div><b>${s.overall}%</b></div><small>overall</small></div>
       <div>
@@ -873,6 +881,8 @@ function buildResult(){
   const s=computeScores();
   return {
     schema:"aptitude-readiness/v1", testId:TEST_ID,
+    attemptNumber: loadStoredAttempts().length + 1,
+    questionsShown: APP.questions.map(q=>q.id),
     student:APP.user?APP.user.name:"Student",
     startedAt:new Date(APP.startedAt).toISOString(),
     finishedAt:new Date().toISOString(),
@@ -900,8 +910,37 @@ function b64enc(s){ return btoa(unescape(encodeURIComponent(s))); }
 function b64dec(b){ return decodeURIComponent(escape(atob(b))); }
 function wrap(obj){ const j=JSON.stringify(obj);
   return {format:"aptitude-readiness-result",checksum:checksum(j),payload:b64enc(j)}; }
+function loadStoredAttempts(){
+  const raw=localStorage.getItem(`aptitude-result:${TEST_ID}`);
+  if(!raw) return [];
+  try{
+    const parsed=JSON.parse(raw);
+    const arr=Array.isArray(parsed)?parsed:[parsed];
+    return arr.map(w=>JSON.parse(b64dec(w.payload)));
+  }catch(e){ return []; }
+}
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function selectQuestionsForAttempt(){
+  const attempts=loadStoredAttempts();
+  const seen=new Set(attempts.flatMap(a=>a.questionsShown||[]));
+  const unseen=BANK.filter(q=>!seen.has(q.id));
+  const pool=unseen.length>=30?unseen:BANK;
+  return shuffle(pool).slice(0,30);
+}
 function saveToStorage(){
-  localStorage.setItem(`aptitude-result:${TEST_ID}`, JSON.stringify(wrap(buildResult())));
+  const wrapper=wrap(buildResult());
+  const raw=localStorage.getItem(`aptitude-result:${TEST_ID}`);
+  let arr=[];
+  try{ const parsed=JSON.parse(raw); arr=Array.isArray(parsed)?parsed:[parsed]; }catch(e){}
+  arr.push(wrapper);
+  localStorage.setItem(`aptitude-result:${TEST_ID}`, JSON.stringify(arr));
 }
 function downloadJSON(){
   const obj=buildResult(), j=JSON.stringify(obj);

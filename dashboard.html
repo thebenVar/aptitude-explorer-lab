@@ -133,6 +133,11 @@
     color:var(--faint);font-size:.78rem;line-height:1.55}
   .legal p{margin:0 0 8px} .legal strong{color:var(--muted)}
 
+  /* Attempt history inside test card */
+  .attempt-hist{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:.8rem}
+  .att-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0}
+  .att-score{font-weight:700}
+
   @media(max-width:560px){.card{padding:18px 16px} body{padding:14px 10px 56px}}
 </style>
 </head>
@@ -164,17 +169,55 @@
 "use strict";
 
 const TEST_META = {
-  "ai-ml": { label:"AI/ML", href:"ai-ml.html", icon:"🧠" },
-  "ds":    { label:"Data Science",          href:"ds.html",    icon:"📊" },
-  "cs":    { label:"Computer Science",      href:"cs.html",    icon:"💻" }
+  "ai-ml":       { label:"AI/ML",              href:"ai-ml.html",       icon:"🧠" },
+  "ds":          { label:"Data Science",       href:"ds.html",          icon:"📊" },
+  "cs":          { label:"Computer Science",   href:"cs.html",          icon:"💻" },
+  "medicine":    { label:"Medicine",           href:"medicine.html",    icon:"🩺" },
+  "law":         { label:"Law",                href:"law.html",         icon:"⚖️" },
+  "commerce":    { label:"Commerce & Finance", href:"commerce.html",    icon:"💰" },
+  "engineering": { label:"Engineering",        href:"engineering.html", icon:"⚙️" },
+  "design":      { label:"Design",             href:"design.html",      icon:"🎨" }
 };
 
 const DIM_META = {
-  quant: { label:"Quantitative",       improve:"Khan Academy Arithmetic + Algebra 1." },
-  logic: { label:"Logical Reasoning",  improve:"Number-series puzzles and logic apps, 15 min/day." },
-  stats: { label:"Statistics",         improve:"Khan Academy Statistics & Probability — mean, median, variance, probability." },
-  code:  { label:"Computational Logic",improve:"Scratch or Python on Codecademy — trace logic, not syntax." },
-  data:  { label:"Data Interpretation",improve:"Read charts in news/sports; ask 'what does this actually prove?'" }
+  // AI/ML
+  quant:      { label:"Quantitative",              improve:"Khan Academy Arithmetic + Algebra 1." },
+  logic:      { label:"Logical Reasoning",         improve:"Number-series puzzles and logic apps, 15 min/day." },
+  stats:      { label:"Statistics",                improve:"Khan Academy Statistics & Probability." },
+  code:       { label:"Computational Logic",       improve:"Scratch or Python on Codecademy — trace logic, not syntax." },
+  data:       { label:"Data Interpretation",       improve:"Read charts in news/sports; ask 'what does this actually prove?'" },
+  // DS
+  prob:       { label:"Probability & Uncertainty", improve:"Practice conditional probability and Bayes' intuition." },
+  math:       { label:"Mathematical Intuition",    improve:"Khan Academy Arithmetic through Pre-Algebra." },
+  // CS
+  pattern:    { label:"Pattern Recognition",       improve:"Number and letter series exercises. Try Project Euler problems." },
+  precision:  { label:"Precision & Detail",        improve:"Slow down when checking work. Spot-the-difference exercises." },
+  decomp:     { label:"Problem Decomposition",     improve:"For any complex task, list every individual step needed." },
+  systems:    { label:"Systems Thinking",          improve:"Ask 'what breaks if I change this?' when studying anything." },
+  // Medicine
+  bio:        { label:"Biological Reasoning",      improve:"Study body systems with a 'why' focus (Khan Academy Health & Medicine)." },
+  systematic: { label:"Sequential Thinking",       improve:"Practise following complex multi-step instructions exactly." },
+  numerical:  { label:"Numerical Reasoning",       improve:"Practise percentage and ratio problems in medical contexts." },
+  observation:{ label:"Observation & Patterns",    improve:"Practise spot-the-difference exercises." },
+  ethics:     { label:"Ethical Reasoning",         improve:"Read about ethics. Study dilemmas where two principles conflict." },
+  // Law
+  verbal:     { label:"Verbal Reasoning",          improve:"Read widely including formal documents. Notice how word choices change meaning." },
+  argument:   { label:"Argument Analysis",         improve:"Read opinion pieces and identify argument, evidence, and weak points." },
+  reading:    { label:"Reading Comprehension",     improve:"Practise comprehension using only what is in the text." },
+  deductive:  { label:"Deductive Reasoning",       improve:"Practise syllogisms and if-then reasoning. Try LSAT Logical Reasoning." },
+  // Commerce
+  financial:  { label:"Financial Reasoning",       improve:"Study personal finance basics. Practise break-even analysis." },
+  business:   { label:"Business Logic",            improve:"Study basic economics. Read business case studies." },
+  detail:     { label:"Accuracy & Detail",         improve:"Always verify calculations twice. Slow down with numbers." },
+  // Engineering
+  physics:    { label:"Physical Intuition",        improve:"Watch Veritasium or MinutePhysics. Notice everyday physics." },
+  spatial:    { label:"Spatial Thinking",          improve:"Solve tangram and origami puzzles. Try SketchUp or Tinkercad." },
+  optimize:   { label:"Optimisation Thinking",     improve:"Work through constraint problems. Try resource-management puzzles." },
+  // Design
+  visual:     { label:"Visual Pattern Recognition",improve:"Study patterns in nature and art. Practise visual matrix puzzles." },
+  proportion: { label:"Proportional Thinking",     improve:"Study the golden ratio and design grids." },
+  lateral:    { label:"Creative Thinking",         improve:"Brainstorm 10 solutions before picking one." },
+  process:    { label:"Process & Sequence",        improve:"Deconstruct how everyday objects are made. Flowchart making processes." }
 };
 
 function b64decode(b64){ return decodeURIComponent(escape(atob(b64))); }
@@ -187,13 +230,14 @@ function loadAllResults(){
     const raw=localStorage.getItem(`aptitude-result:${id}`);
     if(!raw) continue;
     try{
-      const outer=JSON.parse(raw);
-      if(!outer.payload) continue;
-      const data=JSON.parse(b64decode(outer.payload));
-      out[id]=data;
+      const parsed=JSON.parse(raw);
+      const arr=Array.isArray(parsed)?parsed:[parsed];
+      const attempts=arr.map(w=>JSON.parse(b64decode(w.payload)))
+                        .sort((a,b)=>new Date(a.startedAt)-new Date(b.startedAt));
+      if(attempts.length) out[id]=attempts;
     }catch(e){}
   }
-  return out;
+  return out; // { testId: [attempt1, attempt2, ...] sorted oldest→newest }
 }
 
 function computeBehavioral(data){
@@ -249,6 +293,8 @@ function clearResult(testId){
 function render(){
   const results=loadAllResults();
   const taken=Object.keys(results);
+  const latest={};
+  for(const id of taken) latest[id]=results[id][results[id].length-1];
   const main=document.getElementById("main");
 
   if(!taken.length){
@@ -277,7 +323,8 @@ function render(){
     <div class="test-grid">`;
 
   for(const id of taken){
-    const data=results[id], meta=TEST_META[id];
+    const data=latest[id], meta=TEST_META[id];
+    const attempts=results[id];
     const cls=rate(data.overall);
     const dimKeys=data.dimScores ? Object.keys(data.dimScores) : [];
     const dimsHtml=dimKeys.map(d=>{
@@ -290,11 +337,24 @@ function render(){
       </div>`;
     }).join("");
 
+    let histHtml="";
+    if(attempts.length>1){
+      histHtml=`<div class="attempt-hist">`;
+      attempts.forEach((a,i)=>{
+        const delta=i>0?a.overall-attempts[0].overall:null;
+        const deltaStr=delta!==null
+          ?` <span class="cmp-delta ${delta>0?"up":delta<0?"dn":"eq"}">${delta>0?"+":""}${delta}%</span>`
+          :` <span class="pill" style="font-size:.7rem;margin-left:4px">baseline</span>`;
+        histHtml+=`<div class="att-row"><span class="muted">Attempt ${i+1} · ${fmtDate(a.startedAt)}</span><span class="att-score">${a.overall}%${deltaStr}</span></div>`;
+      });
+      histHtml+=`</div>`;
+    }
+
     html+=`<div class="tcard">
       <div class="thead">
         <div>
           <div class="tname">${meta.icon} ${meta.label}</div>
-          <div class="tdate">${fmtDate(data.startedAt)}</div>
+          <div class="tdate">${attempts.length>1?`${attempts.length} attempts · latest: `:""}${fmtDate(data.startedAt)}</div>
         </div>
         <div class="ring" style="--p:${data.overall}">
           <b>${data.overall}%</b>
@@ -303,17 +363,18 @@ function render(){
       </div>
       <span class="pill ${cls}">${data.band === "strong" ? "Strong" : data.band === "promising" ? "Promising" : "Gaps to close"}</span>
       <div class="dims" style="margin-top:12px">${dimsHtml}</div>
+      ${histHtml}
       <div class="actions">
         <a href="${meta.href}" class="btn sm">↩ Retake</a>
         <a href="learn.html" class="btn sm">📚 Study guide</a>
-        <button class="btn sm danger" onclick="clearResult('${id}')">✕ Clear</button>
+        <button class="btn sm danger" onclick="clearResult('${id}')">✕ Clear all</button>
       </div>
     </div>`;
   }
   html+=`</div></div>`;
 
   // ── Section 2: Dimension comparison (always shown if 1+ tests) ──────────
-  const allDims=getAllDims(results);
+  const allDims=getAllDims(latest);
   html+=`<div class="card">
     <div class="sec-head">
       <h2>Dimension breakdown</h2>
@@ -331,7 +392,7 @@ function render(){
     for(const d of allDims){
       const lbl=(DIM_META[d]||{label:d}).label;
       const cells=testIds.map(id=>{
-        const ds=(results[id].dimScores||{})[d];
+        const ds=(latest[id].dimScores||{})[d];
         if(!ds) return `<td class="muted">—</td>`;
         const cl=rate(ds.pct);
         return `<td>
@@ -343,7 +404,7 @@ function render(){
       });
       let deltaHtml="";
       if(testIds.length>=2){
-        const scores=testIds.map(id=>(results[id].dimScores||{})[d]?.pct).filter(v=>v!=null);
+        const scores=testIds.map(id=>(latest[id].dimScores||{})[d]?.pct).filter(v=>v!=null);
         if(scores.length>=2){
           const delta=scores[scores.length-1]-scores[0];
           const cls=delta>0?"up":delta<0?"dn":"eq";
@@ -359,7 +420,7 @@ function render(){
     html+=`<p class="faint" style="margin-top:10px">Trend compares your most recent test to your first for each dimension. Positive = improvement.</p>`;
   } else {
     // Single test: show simple bars
-    const id=taken[0], data=results[id];
+    const id=taken[0], data=latest[id];
     html+=`<div style="margin-top:14px;display:grid;gap:10px">`;
     for(const d of allDims){
       const ds=(data.dimScores||{})[d]; if(!ds) continue;
@@ -386,7 +447,7 @@ function render(){
     <p class="faint">How you approached the questions — patterns the regular results report doesn't show.</p>`;
 
   for(const id of taken){
-    const b=computeBehavioral(results[id]);
+    const b=computeBehavioral(latest[id]);
     if(!b) continue;
     const meta=TEST_META[id];
     if(taken.length>1) html+=`<h3 style="margin:16px 0 8px;font-size:.95rem;color:var(--muted)">${meta.icon} ${meta.label}</h3>`;
@@ -453,7 +514,7 @@ function render(){
   html+=`</div>`;
 
   // ── Section 4: Study focus ────────────────────────────────────────────────
-  const weakDims=getWeakDims(results, allDims);
+  const weakDims=getWeakDims(latest, allDims);
   if(weakDims.length){
     html+=`<div class="card">
       <h2 style="margin-bottom:4px">Study focus</h2>
