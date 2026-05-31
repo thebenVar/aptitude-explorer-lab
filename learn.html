@@ -157,7 +157,7 @@
     <p id="intro-hint" class="muted">Try each question yourself first. Then click
       <b style="color:var(--accent)">💡 How to think about it</b> to check your reasoning.</p>
     <div class="controls">
-      <a class="btn primary take-test-link" href="ai-ml.html">📝 Take the test →</a>
+      <a class="btn primary take-test-link" href="assessment.html?test=ai-ml">📝 Take the test →</a>
       <a class="btn" href="dashboard.html">★ My progress</a>
       <button class="btn" id="open-all">Reveal all explanations</button>
       <button class="btn" id="close-all">Hide all</button>
@@ -191,7 +191,7 @@
 
   <div class="card" id="bottom-cta" style="text-align:center">
     <p class="muted" id="bottom-cta-text" style="margin:0 0 12px">Practised these and want to see how you'd score?</p>
-    <a class="btn primary take-test-link" href="ai-ml.html">📝 Take the test →</a>
+    <a class="btn primary take-test-link" href="assessment.html?test=ai-ml">📝 Take the test →</a>
   </div>
 
   <footer class="legal">
@@ -470,21 +470,21 @@ const SECTIONS = [
 
 /* ---- test awareness ---- */
 const TEST_META_LEARN = {
-  "ai-ml":       { name:"AI/ML",             href:"ai-ml.html",       subtitle:"A study guide for the AI/ML aptitude check",      hasGuide:true,
+  "ai-ml":       { name:"AI/ML",             href:"assessment.html?test=ai-ml",       subtitle:"A study guide for the AI/ML aptitude check",      hasGuide:true,
     dimLabels:{quant:"Quantitative",logic:"Logical Reasoning",stats:"Statistics & Probability",code:"Step-by-Step Logic",data:"Reading Charts"} },
-  "ds":          { name:"Data Science",       href:"ds.html",          subtitle:"Review your Data Science assessment",              hasGuide:false,
+  "ds":          { name:"Data Science",       href:"assessment.html?test=ds",          subtitle:"Review your Data Science assessment",              hasGuide:false,
     dimLabels:{stats:"Statistical Reasoning",prob:"Probability & Uncertainty",data:"Data Critique",logic:"Analytical Logic",math:"Mathematical Intuition"} },
-  "cs":          { name:"Computer Science",   href:"cs.html",          subtitle:"Review your Computer Science assessment",          hasGuide:false,
+  "cs":          { name:"Computer Science",   href:"assessment.html?test=cs",          subtitle:"Review your Computer Science assessment",          hasGuide:false,
     dimLabels:{logic:"Logical Thinking",pattern:"Pattern Recognition",precision:"Precision & Detail",decomp:"Problem Decomposition",systems:"Systems Thinking"} },
-  "medicine":    { name:"Medicine",           href:"medicine.html",    subtitle:"Review your Medicine aptitude assessment",         hasGuide:false,
+  "medicine":    { name:"Medicine",           href:"assessment.html?test=medicine",    subtitle:"Review your Medicine aptitude assessment",         hasGuide:false,
     dimLabels:{bio:"Biological Reasoning",systematic:"Sequential Thinking",numerical:"Numerical Reasoning",observation:"Observation & Patterns",ethics:"Ethical Reasoning"} },
-  "law":         { name:"Law",                href:"law.html",         subtitle:"Review your Law aptitude assessment",              hasGuide:false,
+  "law":         { name:"Law",                href:"assessment.html?test=law",         subtitle:"Review your Law aptitude assessment",              hasGuide:false,
     dimLabels:{verbal:"Verbal Reasoning",argument:"Argument Analysis",reading:"Reading Comprehension",deductive:"Deductive Reasoning",ethics:"Ethical Reasoning"} },
-  "commerce":    { name:"Commerce & Finance", href:"commerce.html",    subtitle:"Review your Commerce & Finance assessment",        hasGuide:false,
+  "commerce":    { name:"Commerce & Finance", href:"assessment.html?test=commerce",    subtitle:"Review your Commerce & Finance assessment",        hasGuide:false,
     dimLabels:{quant:"Numerical Aptitude",financial:"Financial Reasoning",data:"Data Reading",business:"Business Logic",detail:"Accuracy & Detail"} },
-  "engineering": { name:"Engineering",        href:"engineering.html", subtitle:"Review your Engineering aptitude assessment",      hasGuide:false,
+  "engineering": { name:"Engineering",        href:"assessment.html?test=engineering", subtitle:"Review your Engineering aptitude assessment",      hasGuide:false,
     dimLabels:{quant:"Mathematical Reasoning",physics:"Physical Intuition",spatial:"Spatial Thinking",systems:"Systems Thinking",optimize:"Optimisation Thinking"} },
-  "design":      { name:"Design",             href:"design.html",      subtitle:"Review your Design aptitude assessment",           hasGuide:false,
+  "design":      { name:"Design",             href:"assessment.html?test=design",      subtitle:"Review your Design aptitude assessment",           hasGuide:false,
     dimLabels:{spatial:"Spatial Reasoning",visual:"Visual Pattern Recognition",proportion:"Proportional Thinking",lateral:"Creative Thinking",process:"Process & Sequence"} }
 };
 function getActiveTestId(){

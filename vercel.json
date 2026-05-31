@@ -1,4 +1,14 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/ai-ml", "destination": "/assessment.html?test=ai-ml" },
+    { "source": "/ds", "destination": "/assessment.html?test=ds" },
+    { "source": "/cs", "destination": "/assessment.html?test=cs" },
+    { "source": "/commerce", "destination": "/assessment.html?test=commerce" },
+    { "source": "/design", "destination": "/assessment.html?test=design" },
+    { "source": "/engineering", "destination": "/assessment.html?test=engineering" },
+    { "source": "/law", "destination": "/assessment.html?test=law" },
+    { "source": "/medicine", "destination": "/assessment.html?test=medicine" }
+  ]
 }
