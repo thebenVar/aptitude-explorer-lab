@@ -129,7 +129,17 @@ Every new question must pass **all** of these before it's accepted:
 
 ## 7. Bank-Level Acceptance (smoke check)
 
-After expanding a file, confirm:
+Run the structural gate (must pass — exit 0):
+
+```bash
+node tools/validate-bank.cjs <id>     # e.g. ds, cs, law … (omit id to check all)
+```
+
+It verifies 100 questions, 20 per dimension, unique sequential ids, valid 4-option
+answer indices, and valid difficulty labels. **It cannot check that an answer key is
+factually correct** — that still requires independent re-solving of each item.
+
+Then also confirm:
 
 - [ ] Exactly **100** question objects in the array.
 - [ ] Exactly **20** per dimension (`grep` count of each `dim:` key).
