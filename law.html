@@ -541,25 +541,7 @@ const BANK = [
             "Ben — Anna — Cara — Dan",
             "Cara — Dan — Anna — Ben",
             "Ben — Cara — Dan — Anna"],
-   answer:1},
-  /* Check option B: Ben–Anna–Cara–Dan.
-     - Ben is at an end ✓
-     - Anna is NOT next to Ben? Anna is in position 2, Ben in position 1 — they ARE adjacent. Fail.
-     Check option A: Anna–Ben–Cara–Dan.
-     - Anna next to Ben? Yes — positions 1 and 2. Violates rule 1. Fail.
-     Check option C: Cara–Dan–Anna–Ben.
-     - Cara immediately left of Dan ✓; Ben at end ✓; Anna next to Ben? Anna is position 3, Ben position 4 — adjacent. Fail.
-     Check option D: Ben–Cara–Dan–Anna.
-     - Ben at end ✓; Cara immediately left of Dan: Cara=2, Dan=3 ✓; Anna next to Ben: Anna=4, Ben=1 — not adjacent ✓.
-     So option D is the correct answer. Let me recheck...
-     Option D: Ben(1)–Cara(2)–Dan(3)–Anna(4).
-     - Ben at end: position 1 ✓
-     - Cara immediately left of Dan: Cara=2, Dan=3 ✓
-     - Anna NOT next to Ben: Anna=4, Ben=1, not adjacent ✓
-     All rules satisfied. Answer: D (index 3). */
-   /* Re-set answer to 3 below */},
-
-  /* q21 corrected answer: */
+   answer:3},
 
   /* q22 — rule application: given these rules, which action is allowed */
   {id:"q22", dim:"deductive", timer:55,
