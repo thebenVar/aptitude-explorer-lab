@@ -1,9 +1,10 @@
 # Aptitude Explorer Lab — Aptitude Readiness Checks (for fun)
 
-A small, self-contained web toy with multiple aptitude explorations. Currently includes
-the AI/ML readiness check, with Data Science and Computer Science
-coming soon. Everything runs in the browser — no server, no database, no internet
-needed, no dependencies.
+A small, self-contained web toy with multiple aptitude explorations. Includes eight
+assessments — AI/ML, Data Science, Computer Science, Medicine, Law, Commerce & Finance,
+Engineering, and Design — each with a 100-question bank (a fresh 30 are drawn each
+sitting). Everything runs in the browser — no server, no database, no internet needed,
+no dependencies.
 
 > ### ⚠️ Disclaimer — please read
 > This is an **informal, experimental tool made for fun and learning**. It is **not**
@@ -39,7 +40,10 @@ They live in the `CONFIG.credentials` block at the top of the `<script>` in
 credentials are visible to anyone who opens the file — that's fine, since the login is
 just a bot-gate, not security.
 
-## The five areas it explores
+## Areas it explores
+
+Each assessment has its own **five dimensions** (defined in its `data/<id>.js`). For
+AI/ML, for example:
 
 1. **Quantitative / Numerical** — arithmetic, %, ratios, basic algebra
 2. **Logical & Abstract Reasoning** — sequences, patterns, deduction
@@ -47,8 +51,12 @@ just a bot-gate, not security.
 4. **Computational / Step-by-Step Logic** — following loops/conditions (no coding needed)
 5. **Data Interpretation** — reading charts and tables
 
-~30 multiple-choice questions, ~6 per area, gently timed. All questions are phrased in
-everyday situations (shops, students, dice, taps), not technical jargon.
+Each test has a **100-question bank** (20 per dimension). A single sitting draws **30**
+multiple-choice questions at random and avoids questions seen in previous sittings, so
+repeat attempts stay fresh. Gently timed; all questions are phrased in everyday
+situations, not technical jargon. The report also surfaces **behavioral patterns** (pace,
+second-guessing, quick-vs-considered accuracy) and a **learning-agility** signal across
+attempts.
 
 ## How to use it
 
@@ -102,47 +110,66 @@ All pages link to each other: home → test → results → guide, and guide →
   `learn.html`). They run fully offline. The relative links between them work as long as
   both sit in the same folder.
 - **Deploy to Vercel or GitHub Pages.** Drop the folder in as a static site — no build
-  step. `vercel.json` enables clean URLs, so the guide is served at **`/learn`** and the
-  test at **`/`**.
+  step. `vercel.json` enables clean URLs and rewrites, so each test is reachable at
+  **`/ai-ml`**, **`/ds`**, **`/cs`**, etc. (each rewrites to
+  `assessment.html?test=<id>`), the home grid at **`/`**, and the guide at **`/learn`**.
 
 ## Files
 
+The eight assessments share **one engine and one shell**; only the per-test data differs.
+
 ### Core pages
-- `index.html` — home page listing all available tests (AI/ML active, DS & CS coming soon).
-- `ai-ml.html` — the AI/ML test (friendly student report + mentor analysis + behavioral capture).
-- `learn.html` — study guide + personalized review (auto-loads test results, upload to analyze).
+- `index.html` — home page listing all eight tests.
+- `assessment.html` — the single shell for every test. Reads `?test=<id>` from the URL,
+  loads that test's data, then runs the shared engine. (Old per-test files like
+  `ai-ml.html` no longer exist.)
+- `learn.html` — study guide + personalized review (auto-loads test results, or upload to analyze).
 - `dashboard.html` — consolidated progress dashboard (cross-test scores, dimension comparison, behavioral profile, study focus).
 
-### Config & samples
-- `aptitude-result-sample.json` — example results file for trying `learn.html`.
-- `vercel.json` — clean-URL config for Vercel (enables `/ai-ml`, `/learn`, `/ds`, `/cs` URLs).
-- `README.md` — this file.
+### Shared engine & styles
+- `assets/app.js` — the whole engine: question flow, scoring, behavioral telemetry,
+  learning-agility, mentor report, `barChart`/`lineChart` helpers. A fix or feature here
+  applies to all tests at once.
+- `assets/app.css` — shared styles; each test's accent color comes from CSS custom
+  properties set at load.
 
-### Future tests (to be created)
-- `ds.html` — Data Science aptitude test (coming soon).
-- `cs.html` — Computer Science aptitude test (coming soon).
+### Per-test data
+- `data/<id>.js` — one file per test (`ai-ml`, `ds`, `cs`, `commerce`, `design`,
+  `engineering`, `law`, `medicine`). Each sets `window.ASSESSMENT = { id, title, dot,
+  brandName, loginIntro, theme, config, bandText, bank }`.
+
+### Config, tools & samples
+- `aptitude-result-sample.json` — example results file for trying `learn.html`.
+- `vercel.json` — clean URLs + rewrites (`/ai-ml` → `assessment.html?test=ai-ml`, etc.).
+- `tools/validate-bank.cjs` — structural gate for a question bank (counts, dims, answer
+  indices, difficulty labels): `node tools/validate-bank.cjs <id>`.
+- `docs/question-bank-blueprint.md` — the authoring standard for the 100-question banks.
+- `README.md` — this file.
 
 ## Customising
 
-### Tuning the AI/ML test
-Everything tunable lives at the top of the `<script>` block in `ai-ml.html`:
+### Tuning a test
+Everything tunable lives in that test's `data/<id>.js`, inside `window.ASSESSMENT`:
 
-- `TEST_ID` — the test's short code (e.g., `"ai-ml"`). Used for localStorage keys.
-- `CONFIG.credentials` — usernames, passwords, roles.
-- `CONFIG.rapidMs` — threshold (ms) below which an answer counts as "rushed".
-- `CONFIG.nearDeadlineSec` — seconds-left threshold for "answered under pressure".
-- `CONFIG.bands` / `CONFIG.criticalWeakPct` — band cutoffs.
-- `CONFIG.dims` — area labels, meanings, and improvement advice.
-- `BANK` — the question array: `{ id, dim, prompt, options[], answer, timer?, code?, chart? }`.
-  Charts use the `barChart()` / `lineChart()` helpers (inline SVG, no libraries). To add a
-  question, copy an existing object and set `answer` to the 0-based index of the correct
-  option. Question order in `learn.html` mirrors `BANK` (ids `q1`…`q30`).
+- `id` — the test's short code (e.g., `"ai-ml"`). Used for localStorage keys and the URL.
+- `theme` — `{ accent, accent2 }` hex colors for the test's look.
+- `title`, `dot`, `brandName`, `loginIntro` — per-test copy shown in the shell.
+- `config.credentials` — usernames, passwords, roles.
+- `config.rapidMs` — threshold (ms) below which an answer counts as "rushed".
+- `config.nearDeadlineSec` — seconds-left threshold for "answered under pressure".
+- `config.bands` / `config.criticalWeakPct` — band cutoffs.
+- `config.dims` — the five area labels, meanings, and improvement advice.
+- `bandText` — the strong/promising/gaps result blurbs.
+- `bank` — the question array: `{ id, dim, difficulty, timer, prompt, options[], answer, code?, chart? }`.
+  `answer` is the 0-based index of the correct option. Charts use the `barChart()` /
+  `lineChart()` helpers (defined globally in `app.js`, inline SVG, no libraries).
+  After editing, validate with `node tools/validate-bank.cjs <id>`.
 
 ### Adding a new test
-To add a new test (e.g., Data Science):
-1. Copy `ai-ml.html` to `ds.html`.
-2. Change `const TEST_ID = "ai-ml"` to `const TEST_ID = "ds"`.
-3. Update question bank and CONFIG.dims as needed.
-4. Update `index.html` to add a test card linking to `ds.html` (change `coming` class to remove it once ready).
-5. Update `learn.html` to add the new test ID to the `testNames` object in `autoLoadFromStorage()`.
-6. Point `vercel.json` references to `/ds` if using custom URLs (clean URLs are automatic).
+1. Create `data/<newid>.js` setting `window.ASSESSMENT = { ... }` (copy an existing data
+   file as a template; keep five dimensions and follow `docs/question-bank-blueprint.md`).
+2. Add a test card to `index.html` linking to `assessment.html?test=<newid>`.
+3. Add the test to the `TEST_META` map in `dashboard.html` and `learn.html`.
+4. Add a rewrite for `/<newid>` in `vercel.json`.
+
+No engine, CSS, or shell changes are needed — that's the point of the shared setup.

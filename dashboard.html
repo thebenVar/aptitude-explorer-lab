@@ -169,14 +169,14 @@
 "use strict";
 
 const TEST_META = {
-  "ai-ml":       { label:"AI/ML",              href:"ai-ml.html",       icon:"🧠" },
-  "ds":          { label:"Data Science",       href:"ds.html",          icon:"📊" },
-  "cs":          { label:"Computer Science",   href:"cs.html",          icon:"💻" },
-  "medicine":    { label:"Medicine",           href:"medicine.html",    icon:"🩺" },
-  "law":         { label:"Law",                href:"law.html",         icon:"⚖️" },
-  "commerce":    { label:"Commerce & Finance", href:"commerce.html",    icon:"💰" },
-  "engineering": { label:"Engineering",        href:"engineering.html", icon:"⚙️" },
-  "design":      { label:"Design",             href:"design.html",      icon:"🎨" }
+  "ai-ml":       { label:"AI/ML",              href:"assessment.html?test=ai-ml",       icon:"🧠" },
+  "ds":          { label:"Data Science",       href:"assessment.html?test=ds",          icon:"📊" },
+  "cs":          { label:"Computer Science",   href:"assessment.html?test=cs",          icon:"💻" },
+  "medicine":    { label:"Medicine",           href:"assessment.html?test=medicine",    icon:"🩺" },
+  "law":         { label:"Law",                href:"assessment.html?test=law",         icon:"⚖️" },
+  "commerce":    { label:"Commerce & Finance", href:"assessment.html?test=commerce",    icon:"💰" },
+  "engineering": { label:"Engineering",        href:"assessment.html?test=engineering", icon:"⚙️" },
+  "design":      { label:"Design",             href:"assessment.html?test=design",      icon:"🎨" }
 };
 
 const DIM_META = {
@@ -305,7 +305,7 @@ function render(){
           <h2>No results yet</h2>
           <p class="muted">Take a test to see your results here. Results are automatically saved in this browser when you finish.</p>
           <div class="btn-row" style="justify-content:center;margin-top:18px">
-            <a href="ai-ml.html" class="btn primary">🧠 Start: AI/ML →</a>
+            <a href="assessment.html?test=ai-ml" class="btn primary">🧠 Start: AI/ML →</a>
           </div>
         </div>
       </div>`;
@@ -540,7 +540,7 @@ function render(){
   html+=`<div class="card" style="text-align:center">
     <p class="muted" style="margin:0 0 14px">Want to revisit a specific test or study guide?</p>
     <div class="btn-row" style="justify-content:center;flex-wrap:wrap">
-      <a href="ai-ml.html" class="btn primary">🧠 AI/ML test</a>
+      <a href="assessment.html?test=ai-ml" class="btn primary">🧠 AI/ML test</a>
       <a href="learn.html" class="btn">📚 Study guide</a>
       <a href="index.html" class="btn">← All tests</a>
     </div>
