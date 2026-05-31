@@ -522,7 +522,10 @@ function tryRender(){
   if(_rendered || !_bank || !_guide) return;
   _rendered=true;
   renderGuide(_bank, _guide);
-  window.addEventListener("load", autoLoadFromStorage);
+  // autoLoadFromStorage must run after render. If the page load event already
+  // fired (scripts injected asynchronously), call directly; otherwise wait.
+  if(document.readyState==="complete") autoLoadFromStorage();
+  else window.addEventListener("load", autoLoadFromStorage);
 }
 function renderGuide(bank, guide){
   const dimOrder=Object.keys(ACTIVE.dimLabels);
@@ -687,6 +690,9 @@ function readFile(file){
 }
 
 function analyze(data, tampered){
+  // If content was hidden (no prior localStorage results), reveal it now that
+  // a results file has been loaded — the uploaded data provides the context.
+  content.style.display="";
   const pq=data.perQuestion||[];
   const byId={}; pq.forEach(p=>byId[p.qid]=p);
   let answered=0, correct=0;
