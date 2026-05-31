@@ -994,7 +994,13 @@ $("#dl-pdf").addEventListener("click", ()=>window.print());
 const dz=$("#dropzone");
 const fileInput=$("#file-input");
 
+// Prevent the browser from hijacking the drop (opening/navigating to the file)
+// so the dropzone reliably receives the event.
+["dragenter","dragover","drop"].forEach(t=>
+  document.addEventListener(t, e=>{ e.preventDefault(); }, false));
+
 dz.addEventListener("click", ()=>fileInput.click());
+dz.addEventListener("dragenter", e=>{e.preventDefault();dz.classList.add("over");});
 dz.addEventListener("dragover", e=>{e.preventDefault();dz.classList.add("over");});
 dz.addEventListener("dragleave", ()=>dz.classList.remove("over"));
 dz.addEventListener("drop", e=>{
