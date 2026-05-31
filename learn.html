@@ -170,13 +170,7 @@
       <input id="file" type="file" accept=".json,application/json" style="display:none" />
     </div>
     <div id="upload-msg"></div>
-    <div class="toc" id="toc">
-      <a href="#quant">Quantitative</a>
-      <a href="#logic">Logical Reasoning</a>
-      <a href="#stats">Statistics &amp; Probability</a>
-      <a href="#code">Step-by-Step Logic</a>
-      <a href="#data">Reading Charts</a>
-    </div>
+    <div class="toc" id="toc"><!-- populated by JS from ACTIVE.dimLabels --></div>
   </div>
 
   <div class="card review" id="review"><!-- personalized review, built after upload --></div>
@@ -497,6 +491,11 @@ function getActiveTestId(){
 }
 const ACTIVE_ID=getActiveTestId();
 const ACTIVE=TEST_META_LEARN[ACTIVE_ID];
+
+/* ---- populate TOC from active test's dimensions ---- */
+document.getElementById("toc").innerHTML=
+  Object.entries(ACTIVE.dimLabels).map(([id,label])=>
+    `<a href="#${id}">${label}</a>`).join("");
 
 /* ---- render ---- */
 const keys=["A","B","C","D","E","F"];
