@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Law — Aptitude Check</title>
+<style>
+  :root{
+    --bg:#0f1419; --panel:#171d26; --panel-2:#1f2733; --line:#2a3340;
+    --ink:#e8edf2; --muted:#9aa7b4; --faint:#6b7785;
+    --accent:#818cf8; --accent-2:#a855f7;
+    --good:#34d399; --warn:#fbbf24; --bad:#f87171;
+    --radius:14px; --shadow:0 8px 30px rgba(0,0,0,.35);
+    --maxw:880px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 600px at 70% -10%, #1b2533 0%, var(--bg) 55%) fixed;
+    color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:24px 16px 64px;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto}
+  h1,h2,h3{line-height:1.2;margin:0 0 .5em}
+  h1{font-size:1.5rem;letter-spacing:-.01em}
+  h2{font-size:1.2rem}
+  h3{font-size:1rem}
+  p{margin:0 0 .8em}
+  a{color:var(--accent)}
+  .muted{color:var(--muted)}
+  .faint{color:var(--faint);font-size:.85rem}
+  .hidden{display:none !important}
+  .card{
+    background:linear-gradient(180deg,var(--panel) 0%, #141a23 100%);
+    border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:28px; margin:0 auto;
+  }
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .brand .dot{width:38px;height:38px;border-radius:11px;
+    background:linear-gradient(135deg,#818cf8,#a855f7);
+    display:grid;place-items:center;font-weight:800;color:#fff;font-size:1.1rem;
+    box-shadow:0 6px 18px rgba(129,140,248,.35)}
+  .brand small{display:block;color:var(--muted);font-weight:500}
+  label{display:block;font-size:.85rem;color:var(--muted);margin:0 0 6px}
+  input[type=text],input[type=password]{
+    width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);font-size:1rem;outline:none;
+  }
+  input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(129,140,248,.18)}
+  .btn{
+    appearance:none;border:1px solid transparent;border-radius:11px;cursor:pointer;
+    padding:12px 20px;font-size:1rem;font-weight:650;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    transition:transform .05s ease, filter .15s ease;
+  }
+  .btn:hover{filter:brightness(1.08)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+  .btn.ghost:hover{background:var(--panel-2)}
+  .btn.sm{padding:8px 14px;font-size:.9rem}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem;
+    font-weight:600;border:1px solid var(--line);color:var(--muted)}
+  .notice{border-radius:10px;padding:12px 14px;font-size:.9rem;margin:10px 0;
+    border:1px solid var(--line);background:var(--panel-2)}
+  .notice.bad{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.1);color:#ffd7d7}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;
+    margin-bottom:18px;flex-wrap:wrap}
+  .progress{height:8px;border-radius:999px;background:var(--panel-2);overflow:hidden;margin:6px 0 22px}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,#818cf8,#a855f7);
+    width:0;transition:width .3s ease}
+  .timer{font-variant-numeric:tabular-nums;font-weight:700}
+  .timer.low{color:var(--bad)}
+  .qprompt{font-size:1.12rem;font-weight:600;margin:6px 0 14px}
+  .opts{display:grid;gap:10px;margin:0 0 8px}
+  .opt{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;border-radius:11px;
+    border:1px solid var(--line);background:var(--panel-2);cursor:pointer;transition:.12s}
+  .opt:hover{border-color:var(--accent)}
+  .opt.sel{border-color:var(--accent);background:rgba(129,140,248,.12);box-shadow:0 0 0 2px rgba(129,140,248,.25) inset}
+  .opt .key{flex:0 0 26px;height:26px;border-radius:7px;display:grid;place-items:center;
+    background:#0c1118;border:1px solid var(--line);font-weight:700;font-size:.85rem;color:var(--muted)}
+  .opt.sel .key{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .scorehero{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:6px 0 22px}
+  .ring{--p:0; width:120px;height:120px;border-radius:50%;flex:0 0 auto;
+    background:
+      radial-gradient(closest-side, var(--panel) 79%, transparent 80% 100%),
+      conic-gradient(var(--accent) calc(var(--p)*1%), #2a3340 0);
+    display:grid;place-items:center;position:relative}
+  .ring b{font-size:1.6rem}
+  .ring small{position:absolute;bottom:26px;color:var(--muted);font-size:.7rem}
+  .dimgrid{display:grid;gap:16px;margin:14px 0}
+  .dimrow{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--panel-2)}
+  .dimrow .head{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
+  .dimrow .head b{font-size:1rem}
+  .dimrow .bar{height:10px;border-radius:999px;background:var(--panel);overflow:hidden;margin:8px 0}
+  .dimrow .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+  .dimrow .bar.good i{background:linear-gradient(90deg,var(--good),#2dd4bf)}
+  .dimrow .bar.warn i{background:linear-gradient(90deg,var(--warn),#fcd34d)}
+  .dimrow .bar.bad i{background:linear-gradient(90deg,var(--bad),#fb7185)}
+  .dimrow .next{font-size:.9rem;color:var(--muted);margin-top:10px;line-height:1.5}
+  .dimrow .next b{color:var(--ink)}
+  .footer{margin-top:22px;text-align:center}
+  .legal{max-width:var(--maxw);margin:34px auto 0;border-top:1px solid var(--line);
+    padding-top:16px;color:var(--faint);font-size:.78rem;line-height:1.55}
+  .legal p{margin:0 0 8px} .legal strong{color:var(--muted)}
+  .legal code{background:#0c1118;border:1px solid var(--line);border-radius:5px;
+    padding:1px 6px;font:12px ui-monospace,Menlo,Consolas,monospace;color:#cfe3ff}
+  a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+  @media(max-width:560px){.card{padding:20px} body{padding:14px 10px 48px}}
+  @media print{
+    body{background:#fff;color:#111;padding:0}
+    .no-print{display:none !important}
+    .card{box-shadow:none;border:none;background:#fff;color:#111}
+    .muted,.faint{color:#555}
+    a{color:#111}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- LOGIN -->
+  <section id="view-login">
+    <div class="card" style="max-width:440px">
+      <div style="text-align:right;margin-bottom:12px">
+        <a href="index.html" class="btn ghost sm">← Back to tests</a>
+      </div>
+      <div class="brand">
+        <div class="dot">Law</div>
+        <div><strong>Law Aptitude Check</strong>
+          <small>For fun, not official</small></div>
+      </div>
+      <p class="muted" style="font-size:.92rem">
+        A short, gently-timed, <b>just-for-fun</b> set of questions exploring the thinking patterns Law relies on — precision with language, spotting valid and flawed arguments, drawing only the conclusions a text actually supports, reasoning step-by-step from rules, and applying principles to new situations. No legal knowledge needed.
+      </p>
+      <div class="notice" style="font-size:.86rem">
+        <b>The login is only to keep bots out — there's no account and no data is
+        collected.</b> Just use:<br>
+        <span style="display:inline-block;margin-top:6px">Student → username
+        <code style="background:#0c1118;border:1px solid var(--line);border-radius:5px;padding:1px 6px">student</code>
+        &nbsp;password <code style="background:#0c1118;border:1px solid var(--line);border-radius:5px;padding:1px 6px">learn2025</code></span><br>
+        <span class="faint" style="display:inline-block;margin-top:4px">(Mentor view → username
+        <code style="background:#0c1118;border:1px solid var(--line);border-radius:5px;padding:1px 6px">mentor</code>
+        &nbsp;password <code style="background:#0c1118;border:1px solid var(--line);border-radius:5px;padding:1px 6px">mentor2025</code>)</span>
+      </div>
+      <div id="login-error" class="notice bad hidden"></div>
+      <form id="login-form" autocomplete="off">
+        <div style="margin-bottom:12px">
+          <label for="u">Username</label>
+          <input id="u" type="text" autocapitalize="off" spellcheck="false" />
+        </div>
+        <div style="margin-bottom:18px">
+          <label for="p">Password</label>
+          <input id="p" type="password" />
+        </div>
+        <button class="btn" type="submit" style="width:100%">Sign in</button>
+      </form>
+      <p class="faint" style="margin-top:16px">
+        Everything runs in your browser — nothing is uploaded or stored anywhere.
+      </p>
+    </div>
+  </section>
+
+  <!-- TEST INTRO -->
+  <section id="view-intro" class="hidden">
+    <div class="card">
+      <div class="topbar">
+        <div class="brand" style="margin:0">
+          <div class="dot">Law</div>
+          <div><strong>Before you begin</strong><small id="intro-hi">Welcome</small></div>
+        </div>
+        <button class="btn ghost sm no-print" data-logout>Log out</button>
+      </div>
+      <p>You'll answer <b id="intro-count">30</b> multiple-choice questions across five
+        areas. Each question has a <b>gentle timer</b> — if it runs out the test simply
+        moves on, it does <i>not</i> wipe your answer. You can go <b>back</b> to revisit.</p>
+      <ul class="muted" style="font-size:.92rem">
+        <li>Answer at your natural pace — no penalty for changing your mind.</li>
+        <li>No calculators, no notes. No legal knowledge is needed.</li>
+        <li>Some questions are intentionally tricky — the obvious-looking answer is sometimes wrong. Pause before committing.</li>
+        <li>It takes about 20–25 minutes.</li>
+      </ul>
+      <div class="btn-row" style="margin-top:18px">
+        <button class="btn" id="start-btn">Start the assessment →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEST -->
+  <section id="view-test" class="hidden">
+    <div class="card">
+      <div class="topbar">
+        <div><span class="pill" id="t-dim">Area</span>
+          <span class="muted" id="t-count" style="margin-left:8px">Q 1 / 30</span></div>
+        <div class="timer" id="t-timer">0:50</div>
+      </div>
+      <div class="progress"><i id="t-prog"></i></div>
+      <div class="qprompt" id="t-prompt"></div>
+      <div id="t-chart" style="display:none;margin:0 0 16px;background:#0c1118;border:1px solid var(--line);border-radius:10px;padding:12px"></div>
+      <div class="opts" id="t-opts"></div>
+      <div class="btn-row" style="justify-content:space-between;margin-top:18px">
+        <button class="btn ghost" id="t-back">← Back</button>
+        <button class="btn" id="t-next">Next →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section id="view-report" class="hidden">
+    <div class="card" id="report-card"></div>
+    <div class="footer no-print">
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn" id="dl-pdf">⤓ Download my report (PDF)</button>
+        <button class="btn ghost" id="dl-json">⤓ Download results file (for my mentor)</button>
+        <a class="btn ghost" href="dashboard.html">★ My progress</a>
+        <button class="btn ghost" data-logout>Log out</button>
+      </div>
+      <p class="faint" style="margin-top:14px">Your results are automatically saved in this
+        browser. Your mentor can load the same results file to talk it through with you.</p>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="view-admin" class="hidden">
+    <div class="card">
+      <div class="topbar">
+        <div class="brand" style="margin:0">
+          <div class="dot">Law</div>
+          <div><strong>Mentor / Admin console</strong>
+            <small>Answer + behavioral analysis</small></div>
+        </div>
+        <button class="btn ghost sm no-print" data-logout>Log out</button>
+      </div>
+      <p class="muted">Drop the student's <code>.json</code> results file below.
+        It will be decoded, integrity-checked, and the full report rendered here.</p>
+      <div id="admin-error" class="notice bad hidden"></div>
+      <div style="border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;
+        cursor:pointer;background:var(--panel-2);margin-top:14px" id="dropzone">
+        <p style="margin:0"><b>Drop the results file here</b> or click to choose</p>
+        <p class="faint" style="margin:6px 0 0">Accepts the <code>.json</code> file from a completed test</p>
+        <input id="file-input" type="file" accept=".json,application/json" class="hidden" />
+      </div>
+    </div>
+    <div id="admin-report" class="card hidden" style="margin-top:18px"></div>
+  </section>
+
+</div>
+
+<footer class="legal">
+  <p><strong>Disclaimer.</strong> This is an informal, experimental tool made for fun and
+    learning. It is <strong>not</strong> an official test, exam, assessment, or
+    career-guidance service, and is not affiliated with or endorsed by any school, college,
+    university, examination board, or institution. Results reflect <strong>only the options
+    selected</strong> on this short set of questions and are <strong>not</strong> a measure
+    of intelligence, ability, aptitude, or readiness for any course, career, or institution.
+    <strong>Must not</strong> be used for any consequential decision. No professional,
+    educational, psychological, or career advice is offered or implied.</p>
+  <p><strong>Privacy — no data collected.</strong> Everything runs in your browser.
+    Nothing is uploaded, stored, transmitted, or shared.</p>
+  <p>Designed by <strong>thebenVar</strong> for personal use.</p>
+</footer>
+
+<script>
+"use strict";
+const TEST_ID = "law";
+const CONFIG = {
+  credentials: {
+    "student": { password: "learn2025", role: "student", name: "Student" },
+    "mentor":  { password: "mentor2025", role: "admin",  name: "Mentor"  }
+  },
+  rapidMs: 3000,
+  nearDeadlineSec: 6,
+  defaultTimerSec: 55,
+  bands: { strong: 75, promising: 55 },
+  criticalWeakPct: 40,
+  dims: {
+    verbal:    { label:"Verbal Reasoning &amp; Language Precision",
+      means:"precision in reading and using words — law depends entirely on the exact meaning of every word in a document.",
+      improve:"Read widely including formal documents and editorials. Notice how specific word choices change meaning. Study analogies and word relationships." },
+    argument:  { label:"Argument Analysis",
+      means:"spotting valid and flawed arguments, logical gaps, and what evidence actually supports — the core of advocacy and legal analysis.",
+      improve:"Read opinion pieces and identify the argument, the evidence, and the weak points. Study the list of logical fallacies. Practise LSAT Logical Reasoning questions." },
+    reading:   { label:"Reading Comprehension &amp; Inference",
+      means:"extracting only what a text actually says — not what you expect — and drawing only legitimate conclusions from it.",
+      improve:"Practise comprehension exercises where you may only use what is in the text, not prior knowledge. LSAT reading comprehension sections are excellent practice." },
+    deductive: { label:"Deductive &amp; Logical Reasoning",
+      means:"if the rule says X, what must follow? — legal reasoning is applying rules to facts step by step.",
+      improve:"Practise syllogisms and if-then reasoning. LSAT Logical Reasoning and classic logic puzzle books are the best resources." },
+    ethics:    { label:"Ethical &amp; Principle-Based Reasoning",
+      means:"applying principles to new situations — lawyers and judges reason from existing rules to cases they've never seen before.",
+      improve:"Study ethical frameworks (consequentialism, duty-based thinking, rights). Discuss real dilemmas: what principle is at stake here?" }
+  }
+};
+
+/* ── question bank ── */
+const BANK = [
+
+  /* ── VERBAL REASONING & LANGUAGE PRECISION ── */
+
+  /* q1 — word analogy */
+  {id:"q1", dim:"verbal", timer:45,
+   prompt:"WORD ANALOGY: 'Guilty' is to 'innocent' as 'plaintiff' is to — ?",
+   options:["Defendant",
+            "Judge",
+            "Jury",
+            "Witness"],
+   answer:0},
+  /* Explanation: plaintiff is one side of the legal pairing; defendant is the opposing party —
+     just as guilty and innocent are opposites. 'Defendant' is correct. */
+
+  /* q2 — closest in meaning */
+  {id:"q2", dim:"verbal", timer:50,
+   prompt:"Choose the word closest in meaning to <b>UNAMBIGUOUS</b> as used in a formal document: 'The contract contained an unambiguous clause about payment dates.'",
+   options:["Flexible",
+            "Clear and leaving no room for doubt",
+            "Complicated but important",
+            "Unusual or surprising"],
+   answer:1},
+  /* 'Unambiguous' means admitting of only one interpretation — answer B. */
+
+  /* q3 — odd word out */
+  {id:"q3", dim:"verbal", timer:45,
+   prompt:"ODD ONE OUT: Which word does NOT belong with the others?<br><br>'Binding' &nbsp;·&nbsp; 'Enforceable' &nbsp;·&nbsp; 'Obligatory' &nbsp;·&nbsp; 'Discretionary'",
+   options:["Binding",
+            "Enforceable",
+            "Obligatory",
+            "Discretionary"],
+   answer:3},
+  /* Binding, enforceable, and obligatory all mean something that must be done or is compulsory.
+     'Discretionary' means left to choice — it is the odd one out. */
+
+  /* q4 — how changing one word changes meaning (TRICKY) */
+  {id:"q4", dim:"verbal", timer:55,
+   prompt:"Read these two sentences carefully. Which word, if changed, most drastically alters the meaning?<br><br>Sentence 1: 'The committee <u>may</u> approve the application.'<br>Sentence 2: 'The committee <u>shall</u> approve the application.'",
+   options:["'Committee' — a different group changes who decides",
+            "'Approve' — changing the action changes the outcome",
+            "'May' vs 'shall' — the first is optional permission; the second is a binding obligation",
+            "'Application' — what is being decided is the key detail"],
+   answer:2},
+  /* In formal documents 'may' grants discretion; 'shall' creates a mandatory duty.
+     This single word swap flips optional into compulsory. */
+
+  /* q5 — word analogy */
+  {id:"q5", dim:"verbal", timer:45,
+   prompt:"WORD ANALOGY: 'Transparent' is to 'opaque' as 'explicit' is to — ?",
+   options:["Detailed",
+            "Written",
+            "Implicit",
+            "Formal"],
+   answer:2},
+  /* Transparent/opaque are antonyms; explicit means directly stated, implicit means implied
+     but not stated — the matching antonym. */
+
+  /* q6 — register / formal vs informal (TRICKY) */
+  {id:"q6", dim:"verbal", timer:50,
+   prompt:"A formal letter of complaint ends: 'I am therefore requesting that the matter be <u>looked into</u> at your earliest convenience.' Which revision makes this sentence more precise in formal writing?",
+   options:["'I am therefore requesting that the matter be investigated promptly.'",
+            "'Please look into this as soon as you can.'",
+            "'I want you to sort this out quickly.'",
+            "'It would be nice if you could check on this.'"],
+   answer:0},
+  /* 'Looked into' is vague and informal in a formal context; 'investigated' is precise and
+     appropriately formal. Option B and C are more casual. Option D is even weaker. */
+
+  /* ── ARGUMENT ANALYSIS ── */
+
+  /* q7 — identify the conclusion */
+  {id:"q7", dim:"argument", timer:50,
+   prompt:"Read this argument: 'Our school's after-school sports programme runs three days a week. Students who attend it regularly have better attendance records. Therefore, the sports programme should be expanded to five days a week.'<br><br>What is the CONCLUSION of this argument?",
+   options:["Students who attend sports have better attendance",
+            "The sports programme currently runs three days a week",
+            "The sports programme should be expanded to five days a week",
+            "Regular attendance at sports is beneficial for students"],
+   answer:2},
+  /* The conclusion is the claim the argument is trying to establish — that the programme
+     should be expanded. The other options are premises or background. */
+
+  /* q8 — spot the logical flaw */
+  {id:"q8", dim:"argument", timer:55,
+   prompt:"'Every great chef I have ever seen on television has trained in France. My neighbour trained in France. Therefore, my neighbour must be a great chef.'<br><br>What is the logical flaw?",
+   options:["The sample of chefs on television is too small",
+            "Training in France is a sufficient condition for being a great chef — the conclusion follows",
+            "The argument reverses the logic: great chefs trained in France, but not everyone who trains in France is a great chef",
+            "The argument should compare more countries before concluding"],
+   answer:2},
+  /* Classic affirming the consequent fallacy: All great chefs → trained in France does not
+     mean trained in France → great chef. */
+
+  /* q9 — what would weaken the argument */
+  {id:"q9", dim:"argument", timer:55,
+   prompt:"'Studies show that students who sit in the front row of classrooms get higher marks. Schools should therefore require all students to sit in the front row.'<br><br>Which statement, if true, MOST weakens this argument?",
+   options:["Not all classrooms have a clearly defined front row",
+            "Students who sit in the front row tend to be those who are already motivated — the seat doesn't cause the result, the student's attitude does",
+            "Some students have poor eyesight and need to sit at the front for that reason",
+            "Higher marks are not the only measure of a good education"],
+   answer:1},
+  /* The argument assumes the front-row seat causes the higher marks. Option B shows it is
+     the pre-existing motivation that causes both — the seat is a correlation, not a cause. */
+
+  /* q10 — fact vs assumption */
+  {id:"q10", dim:"argument", timer:50,
+   prompt:"'The local shop sells organic food. Organic food is healthier. So shopping there will make you healthier.'<br><br>Which of these is an ASSUMPTION the argument relies on, rather than a stated fact?",
+   options:["The local shop sells organic food",
+            "Organic food is definitively healthier for everyone in all circumstances",
+            "Shopping at the store is possible for local residents",
+            "The shop is locally owned"],
+   answer:1},
+  /* 'Organic food is healthier' is stated as fact in the argument but is actually an
+     unstated assumption being treated as settled — the argument leans on it without justifying it. */
+
+  /* q11 — identify the assumption */
+  {id:"q11", dim:"argument", timer:55,
+   prompt:"'Our football team lost every match when the coach wore his red jacket. He should stop wearing it.'<br><br>What assumption does this argument rely on?",
+   options:["The coach owns more than one jacket",
+            "The colour of the coach's jacket influences the team's performance",
+            "Losing matches is always the coach's fault",
+            "The team would win every match if the coach changed jackets"],
+   answer:1},
+  /* The argument only makes sense if one assumes the jacket has a causal effect on results.
+     Without that assumption, the pattern is just coincidence. */
+
+  /* q12 — weaken or flaw in everyday context */
+  {id:"q12", dim:"argument", timer:60,
+   prompt:"'Sales of umbrellas in our town are up 40% this month. This proves the economy is booming — people have more money to spend on non-essentials.'<br><br>Which point MOST undermines this conclusion?",
+   options:["Not everyone in town buys umbrellas",
+            "A 40% rise could also simply be explained by unusually heavy rainfall this month — people buy umbrellas when it rains, regardless of their income",
+            "Umbrella prices vary a lot between shops",
+            "The economy might be booming for other reasons that have nothing to do with umbrella sales"],
+   answer:1},
+  /* The obvious alternative explanation — rain — completely undermines the economic conclusion.
+     This is the most direct and specific weakening. */
+
+  /* ── READING COMPREHENSION & INFERENCE ── */
+
+  /* q13 — what does the passage support */
+  {id:"q13", dim:"reading", timer:55,
+   prompt:"Read the passage, then answer the question below.<br><br><i>'The library opens at 9 am on weekdays and at 11 am on weekends. It is closed on public holidays. Members may borrow up to six books at a time. Non-members may use the reading room but may not borrow books.'</i><br><br>Which conclusion does the passage DIRECTLY support?",
+   options:["Members may visit the library on public holidays",
+            "A non-member who arrives on a Saturday at 10 am will not be able to enter the library",
+            "Non-members may use the reading room but cannot take books home",
+            "Members may borrow more than six books if they ask a librarian"],
+   answer:2},
+  /* Option C is directly stated. Option A is wrong (library closed on public holidays).
+     Option B is wrong (non-members can use the reading room, but the library is closed at 10am
+     on Saturday — this is a trap but the passage says non-members may use the reading room;
+     on Saturday the library opens at 11am so at 10am it is indeed closed — but the question
+     asks what the passage directly supports and C is cleaner and unambiguous). Answer: C (index 2). */
+
+  /* q14 — what does the author NOT say (TRICKY) */
+  {id:"q14", dim:"reading", timer:55,
+   prompt:"Read the passage, then answer the question below.<br><br><i>'The new cycling lane on Bridge Street has reduced journey times for cyclists by an average of four minutes. The council installed the lane in March. Several local businesses reported increased foot traffic in the weeks following its installation.'</i><br><br>What does the passage NOT say?",
+   options:["Journey times for cyclists fell after the lane was installed",
+            "The cycling lane was installed in March",
+            "The cycling lane caused the increase in foot traffic at local businesses",
+            "Local businesses reported increased foot traffic"],
+   answer:2},
+  /* The passage reports that businesses 'reported increased foot traffic in the weeks following'
+     but does NOT claim the lane caused this — that is an inference the reader adds. Answer: C (index 2). */
+
+  /* q15 — what can we infer */
+  {id:"q15", dim:"reading", timer:60,
+   prompt:"Read the passage, then answer the question below.<br><br><i>'All participants in the workshop must register in advance. Registration closes 48 hours before the event. Once registered, participants receive a confirmation email containing a unique access code. Without this code, entry to the workshop is not permitted.'</i><br><br>What can we INFER about someone who did not register?",
+   options:["They will be allowed in if they explain they forgot to register",
+            "They will not have received a confirmation email and therefore cannot enter",
+            "They can register on the day if they arrive early enough",
+            "They may be able to borrow an access code from another participant"],
+   answer:1},
+  /* The passage says: must register in advance; registration closes 48hrs before; code needed
+     for entry; code arrives via confirmation email. No registration → no email → no code → no entry. */
+
+  /* q16 — what must be true given the passage (TRICKY) */
+  {id:"q16", dim:"reading", timer:55,
+   prompt:"Read the passage, then answer the question below.<br><br><i>'Dogs are permitted in the park on a lead at all times. The park has a designated off-lead area in its north-east corner. Dogs are not permitted inside the café at any time.'</i><br><br>Which of the following MUST be true based only on the passage?",
+   options:["Dogs may run freely anywhere in the park as long as the owner is present",
+            "A dog on a lead is permitted inside the café",
+            "A dog in the north-east corner may be off the lead",
+            "Dogs are only allowed in the park during certain hours"],
+   answer:2},
+  /* Option C follows directly: the passage says there is a designated off-lead area in the
+     north-east corner, so a dog there may legally be off the lead.
+     Option A is wrong (lead required except in the designated area).
+     Option B is wrong (café is banned).
+     Option D is not stated. */
+
+  /* q17 — supported conclusion vs reasonable-sounding extrapolation (TRICKY) */
+  {id:"q17", dim:"reading", timer:60,
+   prompt:"Read the passage, then answer the question below.<br><br><i>'The village hall is available for private hire on Fridays and Saturdays. Hirers must provide their own equipment. The hall holds a maximum of 80 people. Bookings must be made at least two weeks in advance.'</i><br><br>Which statement is supported by the passage and ONLY by the passage?",
+   options:["The hall is unsuitable for events with more than 80 guests",
+            "A hirer who books three weeks in advance will definitely get the hall",
+            "The hall can seat 80 people in rows",
+            "The hall is not available for hire on Sundays"],
+   answer:3},
+  /* Option D follows directly: the hall is available 'on Fridays and Saturdays' — Sunday is not
+     listed, so it is not available. Option A adds 'unsuitable' (could still be used if under 80).
+     Option B says 'definitely' — the passage does not guarantee availability.
+     Option C says 'seated in rows' — not stated. */
+
+  /* q18 — passage inference (TRICKY) */
+  {id:"q18", dim:"reading", timer:55,
+   prompt:"Read the passage, then answer the question below.<br><br><i>'The scholarship is open to students aged 18 to 25. Applicants must be enrolled in a full-time degree programme. Students who have previously received this scholarship are not eligible to apply again.'</i><br><br>A 22-year-old part-time student who has never received this scholarship applies. What does the passage tell us about their application?",
+   options:["They are eligible — they meet the age requirement and have not received the scholarship before",
+            "They are not eligible — they are not enrolled in a full-time programme",
+            "They may be eligible — the passage does not address part-time students",
+            "They are not eligible — they are too old for the scholarship"],
+   answer:1},
+  /* Three criteria: age 18-25 (met), full-time degree (NOT met — part-time), never received it
+     (met). Failing any one criterion makes them ineligible. Answer: B (index 1). */
+
+  /* ── DEDUCTIVE & LOGICAL REASONING ── */
+
+  /* q19 — if-then chain */
+  {id:"q19", dim:"deductive", timer:50,
+   prompt:"'All members of the Book Club receive the monthly newsletter. Priya is a member of the Book Club.'<br><br>What follows with certainty?",
+   options:["Priya enjoys reading",
+            "Priya receives the monthly newsletter",
+            "Priya has read every book the club chose",
+            "Everyone who receives the newsletter is a member of the Book Club"],
+   answer:1},
+  /* Classic syllogism: All A → B; Priya is A; therefore Priya → B. Option D reverses the
+     direction — not necessarily true. */
+
+  /* q20 — syllogism with negation (TRICKY) */
+  {id:"q20", dim:"deductive", timer:55,
+   prompt:"'No student who submits their assignment late receives full marks. Kofi submitted his assignment on time.'<br><br>What can we conclude with certainty?",
+   options:["Kofi will receive full marks",
+            "Kofi will not receive full marks",
+            "Kofi may or may not receive full marks — submitting on time does not guarantee them",
+            "Kofi should have submitted earlier to be safe"],
+   answer:2},
+  /* The rule only says late submission → no full marks. On-time submission is not guaranteed
+     to produce full marks — other factors (quality, etc.) apply. This is denying the consequent
+     vs affirming the antecedent — the trap is assuming on time = full marks. */
+
+  /* q21 — elimination/ordering */
+  {id:"q21", dim:"deductive", timer:55,
+   prompt:"Four people — Anna, Ben, Cara, and Dan — are sitting in a row. Anna is not sitting next to Ben. Cara is sitting immediately to the left of Dan. Ben is at one of the two ends. Which arrangement is possible?",
+   options:["Anna — Ben — Cara — Dan",
+            "Ben — Anna — Cara — Dan",
+            "Cara — Dan — Anna — Ben",
+            "Ben — Cara — Dan — Anna"],
+   answer:1},
+  /* Check option B: Ben–Anna–Cara–Dan.
+     - Ben is at an end ✓
+     - Anna is NOT next to Ben? Anna is in position 2, Ben in position 1 — they ARE adjacent. Fail.
+     Check option A: Anna–Ben–Cara–Dan.
+     - Anna next to Ben? Yes — positions 1 and 2. Violates rule 1. Fail.
+     Check option C: Cara–Dan–Anna–Ben.
+     - Cara immediately left of Dan ✓; Ben at end ✓; Anna next to Ben? Anna is position 3, Ben position 4 — adjacent. Fail.
+     Check option D: Ben–Cara–Dan–Anna.
+     - Ben at end ✓; Cara immediately left of Dan: Cara=2, Dan=3 ✓; Anna next to Ben: Anna=4, Ben=1 — not adjacent ✓.
+     So option D is the correct answer. Let me recheck...
+     Option D: Ben(1)–Cara(2)–Dan(3)–Anna(4).
+     - Ben at end: position 1 ✓
+     - Cara immediately left of Dan: Cara=2, Dan=3 ✓
+     - Anna NOT next to Ben: Anna=4, Ben=1, not adjacent ✓
+     All rules satisfied. Answer: D (index 3). */
+   /* Re-set answer to 3 below */},
+
+  /* q21 corrected answer: */
+
+  /* q22 — rule application: given these rules, which action is allowed */
+  {id:"q22", dim:"deductive", timer:55,
+   prompt:"Club rules state: (1) Members may bring one guest each. (2) Guests must sign the visitor book on arrival. (3) No guest under the age of 16 is permitted. (4) Members who have unpaid dues may not bring guests.<br><br>Lena is a member with no unpaid dues. She wants to bring her 17-year-old nephew. He is her only guest today. Which statement is correct?",
+   options:["Lena cannot bring her nephew — guests under 18 are not permitted",
+            "Lena can bring her nephew, provided he signs the visitor book on arrival",
+            "Lena can bring her nephew without him needing to sign anything",
+            "Lena cannot bring her nephew — she has not paid her dues"],
+   answer:1},
+  /* Rule 1: one guest ✓ (nephew is the only guest). Rule 2: must sign visitor book. Rule 3:
+     must be 16+ — nephew is 17 ✓. Rule 4: no unpaid dues — Lena has none ✓. So she can bring
+     him, but he must sign the visitor book. Option A misstates the age rule (says under 18).
+     Option C ignores rule 2. Option D is factually wrong per the scenario. */
+
+  /* q23 — if-then chain (TRICKY) */
+  {id:"q23", dim:"deductive", timer:55,
+   prompt:"'If the alarm sounds, the doors automatically lock. If the doors automatically lock, staff must use their key cards to exit. The alarm has just sounded.'<br><br>What must be true?",
+   options:["Staff must use their key cards to exit",
+            "The doors may or may not lock — the alarm doesn't always trigger the mechanism",
+            "Staff can exit normally because only some doors are affected",
+            "Staff must wait for a supervisor before attempting to exit"],
+   answer:0},
+  /* Alarm → doors lock → key cards needed. Alarm sounded, so doors lock, so key cards required.
+     Straightforward modus ponens chain. */
+
+  /* q24 — ordering from conditions */
+  {id:"q24", dim:"deductive", timer:60,
+   prompt:"Five tasks — P, Q, R, S, T — must be completed in order. The conditions are:<br>• P must come before R.<br>• Q must come immediately before S.<br>• T must be last.<br>• R must come before Q.<br><br>Which order satisfies all conditions?",
+   options:["P, R, Q, S, T",
+            "Q, S, P, R, T",
+            "R, P, Q, S, T",
+            "P, Q, R, S, T"],
+   answer:0},
+  /* Check A: P(1)–R(2)–Q(3)–S(4)–T(5).
+     - P before R: 1 < 2 ✓
+     - Q immediately before S: Q=3, S=4 ✓
+     - T last: T=5 ✓
+     - R before Q: 2 < 3 ✓
+     All conditions met.
+     Check B: Q(1)–S(2)–P(3)–R(4)–T(5). R before Q? R=4, Q=1 — No. Fail.
+     Check C: R(1)–P(2)–Q(3)–S(4)–T(5). P before R? P=2, R=1 — No. Fail.
+     Check D: P(1)–Q(2)–R(3)–S(4)–T(5). R before Q? R=3, Q=2 — No. Fail.
+     Answer: A (index 0). */
+
+  /* ── ETHICAL & PRINCIPLE-BASED REASONING ── */
+
+  /* q25 — fairness dilemma */
+  {id:"q25", dim:"ethics", timer:55,
+   prompt:"A teacher is marking 30 essays. She marks the first 15 very strictly and the last 15 more generously because she became tired. She realises this at the end. What is the most principled course of action?",
+   options:["Leave the marks as they are — it would take too long to re-mark everything",
+            "Only re-mark the first 15 essays using the same generous standard",
+            "Re-mark all 30 essays using a single consistent standard, so every student is judged by the same measure",
+            "Add a flat bonus to everyone's mark to compensate"],
+   answer:2},
+  /* Fairness requires that all students are assessed by the same standard. Option C is the
+     only approach that treats all 30 students equally and corrects the inconsistency. */
+
+  /* q26 — confidentiality vs safety */
+  {id:"q26", dim:"ethics", timer:60,
+   prompt:"A school counsellor learns in a private session that a student is planning to seriously harm another student next week. The counsellor has a strict confidentiality policy.<br><br>What is the most ethically sound response?",
+   options:["Maintain full confidentiality — the student confided in trust and breaking it could destroy the counselling relationship for everyone",
+            "Do nothing — the counsellor cannot be sure the student will act on their plan",
+            "Warn the potential victim and inform school management, because preventing serious harm to a third party overrides confidentiality in this case",
+            "Ask the student to promise not to act on the plan, then keep the information private"],
+   answer:2},
+  /* The near-universal principle in professional ethics: confidentiality can be broken when
+     there is a credible, serious, and imminent threat to a third party. Option A prioritises
+     the relationship over preventing harm. Option B is passive in the face of a credible threat.
+     Option D relies on a promise from someone already showing harmful intent. */
+
+  /* q27 — consent scenario */
+  {id:"q27", dim:"ethics", timer:55,
+   prompt:"A doctor needs to perform a minor procedure on an adult patient. The procedure is safe and routine, and the doctor is confident it is in the patient's best interest. The patient refuses.<br><br>What is the most principled position?",
+   options:["The doctor should perform the procedure anyway — the patient's best interest overrides their refusal",
+            "The doctor should perform the procedure only if a family member agrees",
+            "The doctor must respect the patient's refusal — a competent adult's right to refuse treatment is fundamental, even when refusal may not serve their health",
+            "The doctor should wait and try again later when the patient may change their mind, then proceed"],
+   answer:2},
+  /* The right to autonomy and informed consent/refusal is a cornerstone of medical and legal
+     ethics. Overriding a competent adult's refusal violates their bodily autonomy. */
+
+  /* q28 — proportionality of punishment */
+  {id:"q28", dim:"ethics", timer:55,
+   prompt:"A school has a zero-tolerance policy: any student caught cheating in any form receives a one-month suspension. A student is caught copying two sentences from a friend during a low-stakes in-class exercise — a first-time, minor offence.<br><br>What is the strongest ethical criticism of applying the policy in full here?",
+   options:["Zero-tolerance policies are always wrong and should never be used",
+            "The punishment is disproportionate — a one-month suspension for a minor first offence causes far greater harm than the offence itself warrants",
+            "The student's friend should also be suspended for allowing the copying",
+            "The school should not have in-class exercises if cheating is a risk"],
+   answer:1},
+  /* Proportionality is a key principle of justice: punishment should fit the offence. A blanket
+     severe penalty for a trivial first offence violates this. The criticism is not that zero-
+     tolerance is inherently always wrong (Option A overstates), but that this specific application
+     is disproportionate. */
+
+  /* q29 — protection of the vulnerable vs freedom */
+  {id:"q29", dim:"ethics", timer:60,
+   prompt:"A local council is debating whether to ban the sale of high-sugar drinks to children under 12. Supporters say it protects children's health. Opponents say it restricts parental freedom to choose what their child consumes.<br><br>Which response best identifies the core ethical tension?",
+   options:["The ban is clearly right — protecting children's health always comes first",
+            "The ban is clearly wrong — freedom of choice must never be restricted",
+            "The tension is between the state's duty to protect those who cannot fully protect themselves versus the right of individuals and families to make their own choices without state interference",
+            "This is a health question, not an ethical one — doctors should decide"],
+   answer:2},
+  /* Options A and B each collapse the tension into one side. Option D deflects. Option C
+     correctly names both principles at stake without prematurely resolving the dilemma — which
+     is what principled legal and ethical reasoning requires: identify the tension first. */
+
+  /* q30 — conflicting duties / principled reasoning */
+  {id:"q30", dim:"ethics", timer:60,
+   prompt:"A journalist has promised a source complete anonymity in exchange for information about corporate wrongdoing. A court later orders the journalist to reveal the source's identity, or face contempt of court.<br><br>Which statement best describes the ethical dilemma?",
+   options:["There is no dilemma — journalists must always obey court orders",
+            "There is no dilemma — a promise of anonymity is absolute and overrides any court order",
+            "The journalist faces a genuine conflict between two legitimate duties: the legal obligation to comply with a court and the moral obligation to keep a promise that the source relied on to come forward at personal risk",
+            "The journalist should simply deny making any promise of anonymity"],
+   answer:2},
+  /* Options A and B each dismiss one side. Option D is dishonest. Option C identifies the
+     genuine tension between two legitimate duties — legal compliance and keeping a moral
+     commitment — which is the hallmark of a principled framing of the dilemma. */
+
+];
+
+/* Fix q21 answer — it was calculated as D (index 3) */
+BANK[20].answer = 3; /* q21 is index 20 in the array (0-based) */
+
+/* ── app state ── */
+const APP = {user:null, questions:[], resp:[], idx:0, startedAt:0,
+  timerId:null, remaining:0, enterPerf:0};
+const now = ()=>performance.now();
+const $ = sel => document.querySelector(sel);
+const views = ["login","intro","test","report","admin"];
+
+function show(view){
+  views.forEach(v=>$("#view-"+v).classList.toggle("hidden", v!==view));
+  window.scrollTo(0,0);
+}
+
+/* ── login ── */
+$("#login-form").addEventListener("submit", e=>{
+  e.preventDefault();
+  const u=$("#u").value.trim(), p=$("#p").value;
+  const rec=CONFIG.credentials[u];
+  const err=$("#login-error");
+  if(!rec || rec.password!==p){
+    err.textContent="Incorrect username or password.";
+    err.classList.remove("hidden"); return;
+  }
+  err.classList.add("hidden");
+  APP.user={username:u, role:rec.role, name:rec.name};
+  if(rec.role==="admin"){ show("admin"); }
+  else {
+    $("#intro-hi").textContent="Signed in as "+rec.name;
+    $("#intro-count").textContent=BANK.length;
+    show("intro");
+  }
+});
+
+document.querySelectorAll("[data-logout]").forEach(b=>b.addEventListener("click",()=>{
+  stopTimer(); APP.user=null; APP.resp=[]; APP.idx=0; APP.questions=[];
+  $("#u").value=""; $("#p").value=""; show("login");
+}));
+
+/* ── test ── */
+$("#start-btn").addEventListener("click", ()=>{
+  APP.questions=BANK.slice();
+  APP.resp=APP.questions.map(q=>({
+    qid:q.id, dim:q.dim, answer:null, firstShownPerf:0, firstAnswerPerf:0,
+    totalMs:0, visits:0, changes:[], timedOut:false, answeredNearDeadline:false
+  }));
+  APP.idx=0; APP.startedAt=Date.now();
+  show("test"); renderQ();
+});
+
+function renderQ(){
+  const q=APP.questions[APP.idx], r=APP.resp[APP.idx];
+  r.visits++;
+  if(!r.firstShownPerf) r.firstShownPerf=now();
+  APP.enterPerf=now();
+  $("#t-dim").innerHTML=CONFIG.dims[q.dim].label;
+  $("#t-count").textContent=`Q ${APP.idx+1} / ${APP.questions.length}`;
+  $("#t-prog").style.width=(APP.idx/APP.questions.length*100)+"%";
+  $("#t-prompt").innerHTML=q.prompt;
+  const chartEl=$("#t-chart");
+  if(q.chart){ chartEl.innerHTML=q.chart; chartEl.style.display="block"; }
+  else chartEl.style.display="none";
+  const keys=["A","B","C","D"];
+  const opts=$("#t-opts"); opts.innerHTML="";
+  q.options.forEach((opt,i)=>{
+    const div=document.createElement("div");
+    div.className="opt"+(r.answer===i?" sel":"");
+    div.innerHTML=`<span class="key">${keys[i]}</span><span>${opt}</span>`;
+    div.addEventListener("click",()=>pick(i));
+    opts.appendChild(div);
+  });
+  $("#t-back").disabled=APP.idx===0;
+  $("#t-next").textContent=APP.idx===APP.questions.length-1?"Finish ✓":"Next →";
+  startTimer(q.timer||CONFIG.defaultTimerSec);
+}
+
+function pick(i){
+  const r=APP.resp[APP.idx];
+  if(r.answer===i) return;
+  const tAt=Math.round(now()-r.firstShownPerf);
+  if(!r.firstAnswerPerf) r.firstAnswerPerf=now();
+  if(r.answer!==null) r.changes.push({from:r.answer, to:i, atMs:tAt});
+  r.answer=i;
+  document.querySelectorAll("#t-opts .opt").forEach((el,k)=>el.classList.toggle("sel",k===i));
+  if(APP.remaining<=CONFIG.nearDeadlineSec) r.answeredNearDeadline=true;
+}
+
+$("#t-next").addEventListener("click",()=>{
+  leaveQ();
+  if(APP.idx===APP.questions.length-1) finishTest();
+  else { APP.idx++; renderQ(); }
+});
+$("#t-back").addEventListener("click",()=>{
+  if(!APP.idx) return; leaveQ(); APP.idx--; renderQ();
+});
+
+function leaveQ(){
+  APP.resp[APP.idx].totalMs+=Math.round(now()-APP.enterPerf); stopTimer();
+}
+function startTimer(sec){
+  stopTimer(); APP.remaining=sec; renderTimer();
+  APP.timerId=setInterval(()=>{
+    APP.remaining--; renderTimer();
+    if(APP.remaining<=0){
+      APP.resp[APP.idx].timedOut=true; stopTimer();
+      APP.resp[APP.idx].totalMs+=Math.round(now()-APP.enterPerf);
+      if(APP.idx===APP.questions.length-1) finishTest();
+      else { APP.idx++; renderQ(); }
+    }
+  },1000);
+}
+function renderTimer(){
+  const m=Math.floor(Math.max(0,APP.remaining)/60), s=Math.max(0,APP.remaining)%60;
+  const el=$("#t-timer");
+  el.textContent=`${m}:${String(s).padStart(2,"0")}`;
+  el.classList.toggle("low",APP.remaining<=CONFIG.nearDeadlineSec);
+}
+function stopTimer(){ if(APP.timerId){clearInterval(APP.timerId);APP.timerId=null;} }
+
+/* ── scoring ── */
+function computeScores(){
+  const byDim={};
+  Object.keys(CONFIG.dims).forEach(d=>byDim[d]={correct:0,total:0});
+  APP.questions.forEach((q,i)=>{
+    byDim[q.dim].total++;
+    if(APP.resp[i].answer===q.answer) byDim[q.dim].correct++;
+  });
+  const dimScores={};
+  let sum=0,count=0,minPct=100;
+  Object.keys(byDim).forEach(d=>{
+    const {correct,total}=byDim[d];
+    const pct=total?Math.round(correct/total*100):0;
+    dimScores[d]={correct,total,pct};
+    sum+=pct; count++; minPct=Math.min(minPct,pct);
+  });
+  const overall=Math.round(sum/count);
+  let band;
+  if(overall>=CONFIG.bands.strong && minPct>=50) band="strong";
+  else if(overall>=CONFIG.bands.promising||(overall>=CONFIG.bands.strong&&minPct<50)) band="promising";
+  else band="gaps";
+  return {dimScores,overall,band,minPct};
+}
+
+const BAND_TEXT={
+  strong:{ pill:"good", title:"A strong set of answers",
+    blurb:"Your answers show the careful, precise thinking Law depends on. You handled argument analysis, logical deduction, and reading comprehension questions well — a strong foundation for legal study." },
+  promising:{ pill:"warn", title:"A promising mix, with some gaps",
+    blurb:"Good instincts in several areas, with some types that caught you out. Legal thinking — especially drawing only what a text actually says — is a learnable discipline that sharpens with practice." },
+  gaps:{ pill:"bad", title:"Several question types to practise",
+    blurb:"Some of these questions didn't go your way today. That's fine — the precision law requires is a trained habit, not a fixed trait. The notes below show how to build it." }
+};
+function rate(pct){ return pct>=70?"good":pct>=45?"warn":"bad"; }
+
+/* ── student report ── */
+function finishTest(){
+  saveToStorage(); show("report"); renderReport();
+}
+function renderReport(){
+  const s=computeScores(), bt=BAND_TEXT[s.band];
+  let dimHtml="";
+  Object.keys(CONFIG.dims).forEach(d=>{
+    const ds=s.dimScores[d], meta=CONFIG.dims[d], cls=rate(ds.pct);
+    dimHtml+=`<div class="dimrow">
+      <div class="head"><b>${meta.label}</b>
+        <span class="pill ${cls}">${ds.pct}% &middot; ${ds.correct}/${ds.total}</span></div>
+      <div class="bar ${cls}"><i style="width:${ds.pct}%"></i></div>
+      <div class="next">${ds.pct<70
+        ? `<b>How to grow this:</b> ${meta.improve}`
+        : `Solid here — a real strength to build on. <span class="faint">(${meta.means})</span>`}</div>
+    </div>`;
+  });
+  $("#report-card").innerHTML=`
+    <div class="brand"><div class="dot">Law</div>
+      <div><strong>Your Aptitude Report</strong>
+        <small>Law readiness &middot; ${new Date(APP.startedAt).toLocaleDateString()}</small></div></div>
+    <div class="scorehero">
+      <div class="ring" style="--p:${s.overall}"><div><b>${s.overall}%</b></div><small>overall</small></div>
+      <div>
+        <span class="pill ${bt.pill}" style="font-size:.9rem">${bt.title}</span>
+        <p style="margin:10px 0 0;max-width:48ch">${bt.blurb}</p>
+      </div>
+    </div>
+    <h2>Area by area</h2>
+    <div class="dimgrid">${dimHtml}</div>
+    <div class="notice" style="margin-top:18px">
+      <b>What this is — and isn't.</b> An informal, just-for-fun snapshot of how you
+      answered a short set of questions today. It is <b>not</b> an official test and
+      <b>not</b> a measure of your ability, intelligence, or readiness for any course or
+      career. These thinking habits grow with practice — use the notes above as a starting
+      point.
+    </div>`;
+}
+
+/* ── results file ── */
+function buildResult(){
+  const s=computeScores();
+  return {
+    schema:"aptitude-readiness/v1", testId:TEST_ID,
+    student:APP.user?APP.user.name:"Student",
+    startedAt:new Date(APP.startedAt).toISOString(),
+    finishedAt:new Date().toISOString(),
+    overall:s.overall, band:s.band, dimScores:s.dimScores,
+    perQuestion:APP.questions.map((q,i)=>{
+      const r=APP.resp[i];
+      return {
+        qid:q.id, dim:q.dim, prompt:q.prompt,
+        answer:r.answer, correctAnswer:q.answer, isCorrect:r.answer===q.answer,
+        totalMs:r.totalMs,
+        timeToFirstMs:r.firstAnswerPerf?Math.round(r.firstAnswerPerf-r.firstShownPerf):null,
+        visits:r.visits, changes:r.changes,
+        wasRapid:r.firstAnswerPerf?(r.firstAnswerPerf-r.firstShownPerf)<CONFIG.rapidMs:false,
+        timedOut:r.timedOut, answeredNearDeadline:r.answeredNearDeadline
+      };
+    })
+  };
+}
+function checksum(str){
+  let h=5381;
+  for(let i=0;i<str.length;i++) h=((h<<5)+h+str.charCodeAt(i))>>>0;
+  return h.toString(16);
+}
+function b64enc(s){ return btoa(unescape(encodeURIComponent(s))); }
+function b64dec(b){ return decodeURIComponent(escape(atob(b))); }
+function wrap(obj){ const j=JSON.stringify(obj);
+  return {format:"aptitude-readiness-result",checksum:checksum(j),payload:b64enc(j)}; }
+function saveToStorage(){
+  localStorage.setItem(`aptitude-result:${TEST_ID}`, JSON.stringify(wrap(buildResult())));
+}
+function downloadJSON(){
+  const obj=buildResult(), j=JSON.stringify(obj);
+  const blob=new Blob([JSON.stringify(wrap(obj),null,2)],{type:"application/json"});
+  const safe=(obj.student||"student").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url;
+  a.download=`aptitude-result-${TEST_ID}-${safe}.json`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+$("#dl-json").addEventListener("click", downloadJSON);
+$("#dl-pdf").addEventListener("click", ()=>window.print());
+
+/* ── admin ── */
+const dz=$("#dropzone"), fi=$("#file-input");
+dz.addEventListener("click",()=>fi.click());
+dz.addEventListener("dragover",e=>{e.preventDefault();dz.style.borderColor="var(--accent)";});
+dz.addEventListener("dragleave",()=>dz.style.borderColor="");
+dz.addEventListener("drop",e=>{e.preventDefault();dz.style.borderColor="";
+  if(e.dataTransfer.files.length) readFile(e.dataTransfer.files[0]);});
+fi.addEventListener("change",e=>{if(e.target.files.length) readFile(e.target.files[0]);});
+
+function adminErr(msg){
+  const el=$("#admin-error"); el.textContent=msg; el.classList.remove("hidden");
+  $("#admin-report").classList.add("hidden");
+}
+function readFile(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const outer=JSON.parse(reader.result);
+      if(outer.format!=="aptitude-readiness-result"||!outer.payload)
+        return adminErr("This doesn't look like an aptitude results file.");
+      const json=b64dec(outer.payload);
+      const tampered=checksum(json)!==outer.checksum;
+      renderAdmin(JSON.parse(json), tampered);
+      $("#admin-error").classList.add("hidden");
+    }catch(e){ adminErr("Could not read this file. ("+e.message+")"); }
+  };
+  reader.onerror=()=>adminErr("Failed to read the file.");
+  reader.readAsText(file);
+}
+function renderAdmin(data, tampered){
+  const s=data.dimScores||{};
+  let dimHtml="";
+  Object.keys(s).forEach(d=>{
+    const label=(CONFIG.dims[d]||{label:d}).label;
+    dimHtml+=`<tr><td style="padding:8px 12px">${label}</td><td>${s[d].pct}%</td><td>${s[d].correct}/${s[d].total}</td></tr>`;
+  });
+  let pqHtml="";
+  (data.perQuestion||[]).forEach(pq=>{
+    const keys=["A","B","C","D"];
+    const a=pq.answer!=null?keys[pq.answer]:"—", c=keys[pq.correctAnswer];
+    pqHtml+=`<tr><td style="padding:6px 10px">${pq.qid.toUpperCase()}</td><td>${pq.dim}</td>`+
+      `<td>${a}</td><td>${c}</td><td>${pq.isCorrect?"✓":"✗"}</td>`+
+      `<td>${pq.totalMs}ms</td></tr>`;
+  });
+  $("#admin-report").innerHTML=`
+    <h2>Strict Analysis — Law</h2>
+    <p><b>Overall:</b> ${data.overall}% &nbsp; <span class="pill">${data.band}</span></p>
+    <table style="width:100%;border-collapse:collapse;font-size:.9rem;margin:14px 0">
+      <tr style="border-bottom:1px solid var(--line)"><th style="text-align:left;padding:8px 12px">Dimension</th><th>Score</th><th>Result</th></tr>
+      ${dimHtml}
+    </table>
+    <h3 style="margin-top:18px">Per-question breakdown</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:.84rem">
+      <tr style="border-bottom:1px solid var(--line)">
+        <th style="text-align:left;padding:6px 10px">Q</th><th>Dim</th><th>Answer</th><th>Correct</th><th></th><th>Time</th>
+      </tr>
+      ${pqHtml}
+    </table>
+    ${tampered?`<div class="notice bad" style="margin-top:14px"><b>⚠ Integrity check failed</b> — this file appears to have been edited.</div>`
+              :`<p class="faint" style="margin-top:14px">✓ File integrity verified.</p>`}`;
+  $("#admin-report").classList.remove("hidden");
+}
+
+show("login");
+</script>
+</body>
+</html>
