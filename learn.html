@@ -148,16 +148,16 @@
       <a href="index.html" class="btn ghost sm">← Back to tests</a>
     </div>
     <div class="brand"><div class="dot">?</div>
-      <div><strong>How to Think About These Questions</strong>
-        <small>A study guide for the AI/ML aptitude check</small></div></div>
-    <p>This is not just an answer key. For every question it shows you <b>how to reason
+      <div><strong id="brand-title">How to Think About These Questions</strong>
+        <small id="brand-sub">A study guide for the AI/ML aptitude check</small></div></div>
+    <p id="intro-desc">This is not just an answer key. For every question it shows you <b>how to reason
       your way to the answer</b> — the method, step by step — plus the common mistake to
       avoid. Aptitude isn't fixed: once you see the <i>way of thinking</i> behind a
       question type, you can solve new ones like it.</p>
-    <p class="muted">Try each question yourself first. Then click
+    <p id="intro-hint" class="muted">Try each question yourself first. Then click
       <b style="color:var(--accent)">💡 How to think about it</b> to check your reasoning.</p>
     <div class="controls">
-      <a class="btn primary" href="ai-ml.html">📝 Take the test →</a>
+      <a class="btn primary take-test-link" href="ai-ml.html">📝 Take the test →</a>
       <a class="btn" href="dashboard.html">★ My progress</a>
       <button class="btn" id="open-all">Reveal all explanations</button>
       <button class="btn" id="close-all">Hide all</button>
@@ -170,7 +170,7 @@
       <input id="file" type="file" accept=".json,application/json" style="display:none" />
     </div>
     <div id="upload-msg"></div>
-    <div class="toc">
+    <div class="toc" id="toc">
       <a href="#quant">Quantitative</a>
       <a href="#logic">Logical Reasoning</a>
       <a href="#stats">Statistics &amp; Probability</a>
@@ -189,9 +189,9 @@
 
   <div id="content"><!-- built by JS --></div>
 
-  <div class="card" style="text-align:center">
-    <p class="muted" style="margin:0 0 12px">Practised these and want to see how you'd score?</p>
-    <a class="btn primary" href="ai-ml.html">📝 Take the test →</a>
+  <div class="card" id="bottom-cta" style="text-align:center">
+    <p class="muted" id="bottom-cta-text" style="margin:0 0 12px">Practised these and want to see how you'd score?</p>
+    <a class="btn primary take-test-link" href="ai-ml.html">📝 Take the test →</a>
   </div>
 
   <footer class="legal">
@@ -468,26 +468,56 @@ const SECTIONS = [
   }
 ];
 
+/* ---- test awareness ---- */
+const TEST_META_LEARN = {
+  "ai-ml":       { name:"AI/ML",             href:"ai-ml.html",       subtitle:"A study guide for the AI/ML aptitude check",      hasGuide:true,
+    dimLabels:{quant:"Quantitative",logic:"Logical Reasoning",stats:"Statistics & Probability",code:"Step-by-Step Logic",data:"Reading Charts"} },
+  "ds":          { name:"Data Science",       href:"ds.html",          subtitle:"Review your Data Science assessment",              hasGuide:false,
+    dimLabels:{stats:"Statistical Reasoning",prob:"Probability & Uncertainty",data:"Data Critique",logic:"Analytical Logic",math:"Mathematical Intuition"} },
+  "cs":          { name:"Computer Science",   href:"cs.html",          subtitle:"Review your Computer Science assessment",          hasGuide:false,
+    dimLabels:{logic:"Logical Thinking",pattern:"Pattern Recognition",precision:"Precision & Detail",decomp:"Problem Decomposition",systems:"Systems Thinking"} },
+  "medicine":    { name:"Medicine",           href:"medicine.html",    subtitle:"Review your Medicine aptitude assessment",         hasGuide:false,
+    dimLabels:{bio:"Biological Reasoning",systematic:"Sequential Thinking",numerical:"Numerical Reasoning",observation:"Observation & Patterns",ethics:"Ethical Reasoning"} },
+  "law":         { name:"Law",                href:"law.html",         subtitle:"Review your Law aptitude assessment",              hasGuide:false,
+    dimLabels:{verbal:"Verbal Reasoning",argument:"Argument Analysis",reading:"Reading Comprehension",deductive:"Deductive Reasoning",ethics:"Ethical Reasoning"} },
+  "commerce":    { name:"Commerce & Finance", href:"commerce.html",    subtitle:"Review your Commerce & Finance assessment",        hasGuide:false,
+    dimLabels:{quant:"Numerical Aptitude",financial:"Financial Reasoning",data:"Data Reading",business:"Business Logic",detail:"Accuracy & Detail"} },
+  "engineering": { name:"Engineering",        href:"engineering.html", subtitle:"Review your Engineering aptitude assessment",      hasGuide:false,
+    dimLabels:{quant:"Mathematical Reasoning",physics:"Physical Intuition",spatial:"Spatial Thinking",systems:"Systems Thinking",optimize:"Optimisation Thinking"} },
+  "design":      { name:"Design",             href:"design.html",      subtitle:"Review your Design aptitude assessment",           hasGuide:false,
+    dimLabels:{spatial:"Spatial Reasoning",visual:"Visual Pattern Recognition",proportion:"Proportional Thinking",lateral:"Creative Thinking",process:"Process & Sequence"} }
+};
+function getActiveTestId(){
+  const p=new URLSearchParams(window.location.search).get("test");
+  if(p && TEST_META_LEARN[p]) return p;
+  for(const id of Object.keys(TEST_META_LEARN)){
+    if(localStorage.getItem(`aptitude-result:${id}`)) return id;
+  }
+  return "ai-ml";
+}
+const ACTIVE_ID=getActiveTestId();
+const ACTIVE=TEST_META_LEARN[ACTIVE_ID];
+
 /* ---- render ---- */
 const keys=["A","B","C","D","E","F"];
 const content=document.getElementById("content");
 const REG={};   // qid -> {q, card, sec, qNo}  (qid matches the test: q1..q30)
 let qNo=0;
 
-const seenQids=getSeenQids("ai-ml");
+const seenQids=getSeenQids(ACTIVE_ID);
 if(seenQids.size===0){
   content.style.display="none";
   const _empty=document.createElement("div");
   _empty.className="card";
   _empty.style.cssText="text-align:center;padding:2.5rem";
   _empty.innerHTML=`<p style="font-size:2rem;margin-bottom:10px">📋</p>
-    <h2>Take the AI/ML test first</h2>
+    <h2>Take the ${ACTIVE.name} test first</h2>
     <p class="muted" style="max-width:42ch;margin:8px auto">The study guide only shows questions you've already attempted — so it doesn't spoil them before you've had a go.</p>
-    <a href="ai-ml.html" class="btn primary" style="display:inline-block;margin-top:16px">📝 Start the AI/ML assessment →</a>`;
+    <a href="${ACTIVE.href}" class="btn primary" style="display:inline-block;margin-top:16px">📝 Start the ${ACTIVE.name} assessment →</a>`;
   content.parentNode.insertBefore(_empty, content);
 }
 
-SECTIONS.forEach(sec=>{
+if(ACTIVE.hasGuide) SECTIONS.forEach(sec=>{
   const strat=document.createElement("div");
   strat.className="strategy"; strat.id=sec.id;
   strat.innerHTML=`<h2>${sec.label}</h2>
@@ -532,7 +562,7 @@ SECTIONS.forEach(sec=>{
     REG[qid]={q, card, sec, qNo};
   });
   if(!_secHasQ) content.removeChild(strat);
-});
+}); // end ACTIVE.hasGuide SECTIONS block
 
 /* ---- reveal/hide all ---- */
 document.getElementById("open-all").addEventListener("click",
@@ -543,8 +573,7 @@ document.getElementById("close-all").addEventListener("click",
 /* =====================================================================
    PERSONALIZED REVIEW — upload the results .json from the test
 ===================================================================== */
-const DIM_LABEL={quant:"Quantitative",logic:"Logical Reasoning",
-  stats:"Statistics & Probability",code:"Step-by-Step Logic",data:"Reading Charts"};
+const DIM_LABEL=ACTIVE.dimLabels;
 function rate(p){ return p>=70?"good":p>=45?"warn":"bad"; }
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 // same encoding the test uses
@@ -566,6 +595,24 @@ const fileEl=document.getElementById("file");
 const uploadMsg=document.getElementById("upload-msg");
 function msg(html,cls){ uploadMsg.innerHTML=`<div class="insight ${cls||''}" style="margin-top:12px">${html}</div>`; }
 
+/* ---- apply branding for active test ---- */
+document.title=ACTIVE.name+" — Study Guide · Aptitude Explorer Lab";
+document.getElementById("brand-sub").textContent=ACTIVE.subtitle;
+document.querySelectorAll(".take-test-link").forEach(a=>{
+  a.href=ACTIVE.href;
+  a.textContent="📝 Take the "+ACTIVE.name+" test →";
+});
+if(!ACTIVE.hasGuide){
+  document.getElementById("open-all").style.display="none";
+  document.getElementById("close-all").style.display="none";
+  document.getElementById("toc").style.display="none";
+  document.getElementById("brand-title").textContent="Review Your Results";
+  document.getElementById("intro-desc").innerHTML=
+    `Load your saved results to review the questions you attempted in the <b>${ACTIVE.name}</b> assessment — which you got right, where you went wrong, and how you approached each one.`;
+  document.getElementById("intro-hint").style.display="none";
+  document.getElementById("bottom-cta-text").textContent="Want to retake the "+ACTIVE.name+" assessment?";
+}
+
 dz.addEventListener("click", ()=>fileEl.click());
 dz.addEventListener("dragover", e=>{e.preventDefault();dz.classList.add("over");});
 dz.addEventListener("dragleave", ()=>dz.classList.remove("over"));
@@ -583,11 +630,60 @@ function readFile(file){
       }
       const json=b64decode(outer.payload);
       const tampered=checksum(json)!==outer.checksum;
-      analyze(JSON.parse(json), tampered);
+      const data=JSON.parse(json);
+      if(ACTIVE.hasGuide){ analyze(data, tampered); } else { renderResultReview(data, tampered); }
     }catch(err){ msg("Couldn't read that file ("+escapeHtml(err.message)+").","bad"); }
   };
   r.onerror=()=>msg("Failed to read the file.","bad");
   r.readAsText(file);
+}
+
+/* ---- result-review mode for non-AI/ML tests ---- */
+function renderResultReview(data, tampered){
+  const content=document.getElementById("content");
+  content.style.display=""; content.innerHTML="";
+  Object.keys(REG).forEach(k=>delete REG[k]);
+  const pq=data.perQuestion||[];
+  let answered=0, correct=0;
+
+  const notice=document.createElement("div");
+  notice.className="card";
+  notice.style.cssText="margin-bottom:20px;border-color:rgba(79,156,249,.3);background:rgba(79,156,249,.05);padding:14px 18px";
+  notice.innerHTML=`<p class="faint" style="margin:0">📚 <b>Detailed step-by-step guides for the ${ACTIVE.name} assessment are coming soon.</b> These cards are drawn from your result — correct answers are marked, but the full reasoning breakdowns haven't been written yet.</p>`;
+  content.appendChild(notice);
+
+  pq.forEach((p,i)=>{
+    const qid=p.qid;
+    answered++; if(p.isCorrect) correct++;
+    const tags=[];
+    if(p.answer==null) tags.push('<span class="tag no">Left blank</span>');
+    else if(p.isCorrect) tags.push('<span class="tag ok">✓ Correct</span>');
+    else tags.push('<span class="tag no">✗ Wrong</span>');
+    tags.push('<span class="tag">'+(p.totalMs/1000).toFixed(1)+'s</span>');
+    if(p.wasRapid) tags.push('<span class="tag beh">answered fast</span>');
+    if(p.timedOut) tags.push('<span class="tag beh">ran out of time</span>');
+    const nch=p.changes?p.changes.length:0;
+    if(nch>0){
+      const path=[p.changes[0].from,...p.changes.map(c=>c.to)].map(x=>keys[x]).join("→");
+      tags.push('<span class="tag beh">changed '+nch+'× ('+path+')</span>');
+    }
+    if(p.visits>1) tags.push('<span class="tag beh">revisited '+p.visits+'×</span>');
+    const dimLabel=DIM_LABEL[p.dim]||p.dim;
+    const card=document.createElement("div");
+    card.className="q"; card.id="card-"+qid;
+    card.innerHTML=`
+      <div class="qhead"><span class="qnum">Q${i+1}</span> <span class="pill">${dimLabel}</span></div>
+      <div class="rslot" style="display:flex">${tags.join("")}</div>
+      <div class="qprompt">${p.prompt}</div>
+      <p class="faint" style="font-size:.83rem;margin-top:8px">Correct answer: <b>${keys[p.correctAnswer]}</b>${!p.isCorrect&&p.answer!=null?` &nbsp;·&nbsp; you picked <b>${keys[p.answer]}</b>`:""}.</p>`;
+    content.appendChild(card);
+    REG[qid]={card, qNo:i+1};
+  });
+
+  buildReview(data, pq, answered, correct, tampered);
+  document.getElementById("filterbar").classList.add("show");
+  uploadMsg.innerHTML="";
+  document.getElementById("review").scrollIntoView({behavior:"smooth"});
 }
 
 function analyze(data, tampered){
@@ -662,8 +758,8 @@ function buildReview(data, pq, answered, correct, tampered){
   }).join("");
 
   const ins=[];
-  ins.push(`<div class="insight good"><b>Strongest area: ${DIM_LABEL[strongest]} — ${s[strongest].pct}%.</b> This is a real asset for AI/ML. Build from it.</div>`);
-  ins.push(`<div class="insight bad"><b>Biggest opportunity: ${DIM_LABEL[weakest]} — ${s[weakest].pct}%.</b> Studying here moves your score the most. Read its strategy box, then redo: ${(wrongByDim[weakest]||[]).map(qlink).join(", ")||"(all correct — now push for speed)"}.</div>`);
+  ins.push(`<div class="insight good"><b>Strongest area: ${DIM_LABEL[strongest]||strongest} — ${s[strongest].pct}%.</b> This is a real asset for ${ACTIVE.name}. Build from it.</div>`);
+  ins.push(`<div class="insight bad"><b>Biggest opportunity: ${DIM_LABEL[weakest]||weakest} — ${s[weakest].pct}%.</b> Studying here moves your score the most. Read its strategy box, then redo: ${(wrongByDim[weakest]||[]).map(qlink).join(", ")||"(all correct — now push for speed)"}.</div>`);
 
   if(rapidWrong.length){
     ins.push(`<div class="insight warn"><b>Slow down — speed cost you marks.</b> You answered ${rapid.length} question(s) in under 3 seconds, and ${rapidWrong.length} were wrong: ${rapidWrong.map(p=>qlink(p.qid)).join(", ")}. These look like snap guesses; working the method would likely flip them.</div>`);
@@ -692,7 +788,7 @@ function buildReview(data, pq, answered, correct, tampered){
 
   const plan=`<h3 style="margin-top:16px">Your study plan</h3>
     <ol class="steps">
-      <li>Read the <b>${DIM_LABEL[weakest]}</b> strategy box, then re-attempt your missed questions there without peeking.</li>
+      <li>${ACTIVE.hasGuide?`Read the <b>${DIM_LABEL[weakest]||weakest}</b> strategy box, then re-attempt your missed questions there without peeking.`:`Focus on <b>${DIM_LABEL[weakest]||weakest}</b> — re-attempt the questions you missed, then retake the test.`}</li>
       <li>Work through your other mistakes below — their explanations are already open. Cover the steps, try, then check.</li>
       <li>After a few days, retake the test (<code class="inl">index.html</code>) and watch ${DIM_LABEL[weakest]} climb.</li>
     </ol>`;
@@ -738,35 +834,21 @@ document.getElementById("show-all").addEventListener("click", ()=>{
 /* ---- auto-load from localStorage on page load ---- */
 function autoLoadFromStorage(){
   try{
-    const TEST_NAMES={"ai-ml":"AI/ML","ds":"Data Science","cs":"Computer Science",
-      "medicine":"Medicine","law":"Law","commerce":"Commerce",
-      "engineering":"Engineering","design":"Design"};
-    let foundData=null, foundWrapper=null, foundKey=null, foundLabel=null;
-    for(const [testId, label] of Object.entries(TEST_NAMES)){
-      const key=`aptitude-result:${testId}`;
-      const raw=localStorage.getItem(key);
-      if(!raw) continue;
-      try{
-        const parsed=JSON.parse(raw);
-        const arr=Array.isArray(parsed)?parsed:[parsed];
-        const decoded=arr.map(w=>({w,data:JSON.parse(b64decode(w.payload))}))
-                         .sort((a,b)=>new Date(a.data.startedAt)-new Date(b.data.startedAt));
-        const latest=decoded[decoded.length-1];
-        foundData=latest.data; foundWrapper=latest.w;
-        foundKey=key; foundLabel=label;
-        break;
-      }catch(e){ continue; }
-    }
-    if(!foundData) return;
-    const json=b64decode(foundWrapper.payload);
-    const tampered=checksum(json)!==foundWrapper.checksum;
-    analyze(foundData,tampered);
-    const dz=document.getElementById("dz");
-    const attemptStr=foundData.attemptNumber?` — Attempt ${foundData.attemptNumber}`:"";
-    dz.innerHTML=`<p style="margin:0"><b>✓ Reviewing your ${foundLabel} results${attemptStr}</b></p>
+    const raw=localStorage.getItem(`aptitude-result:${ACTIVE_ID}`);
+    if(!raw) return;
+    const parsed=JSON.parse(raw);
+    const arr=Array.isArray(parsed)?parsed:[parsed];
+    const decoded=arr.map(w=>({w,data:JSON.parse(b64decode(w.payload))}))
+                     .sort((a,b)=>new Date(a.data.startedAt)-new Date(b.data.startedAt));
+    const latest=decoded[decoded.length-1];
+    const json=b64decode(latest.w.payload);
+    const tampered=checksum(json)!==latest.w.checksum;
+    if(ACTIVE.hasGuide){ analyze(latest.data, tampered); } else { renderResultReview(latest.data, tampered); }
+    const attemptStr=latest.data.attemptNumber?` — Attempt ${latest.data.attemptNumber}`:"";
+    dz.innerHTML=`<p style="margin:0"><b>✓ Reviewing your ${ACTIVE.name} results${attemptStr}</b></p>
       <p class="faint" style="margin:6px 0 0">Saved in this browser. <button class="btn sm" id="clear-storage" style="margin-top:6px">Clear &amp; upload different file</button></p>`;
     document.getElementById("clear-storage").addEventListener("click", ()=>{
-      localStorage.removeItem(foundKey);
+      localStorage.removeItem(`aptitude-result:${ACTIVE_ID}`);
       location.reload();
     });
   }catch(err){}
