@@ -258,6 +258,11 @@ const TEST_META_LEARN = {
 function getActiveTestId(){
   const p=new URLSearchParams(window.location.search).get("test");
   if(p && TEST_META_LEARN[p]) return p;
+  // Pathname fallback for Vercel rewrites: /learn?test= may not be visible
+  // client-side, but /learn is served from /learn so this mainly helps
+  // assessment pages — kept here for symmetry.
+  const pathId=window.location.pathname.replace(/^\/+/,"").split("/")[0];
+  if(pathId && TEST_META_LEARN[pathId]) return pathId;
   for(const id of Object.keys(TEST_META_LEARN)){
     if(localStorage.getItem(`aptitude-result:${id}`)) return id;
   }

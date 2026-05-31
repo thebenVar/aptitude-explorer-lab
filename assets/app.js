@@ -678,7 +678,10 @@ function init(){
 window.__bootAssessment = init;
 (function(){
   const p=new URLSearchParams(location.search);
-  const id=(p.get("test")||"ai-ml").replace(/[^a-z0-9-]/gi,"");
+  // ?test= wins; fall back to the pathname segment (e.g. /ai-ml from a
+  // Vercel rewrite) so the browser URL doesn't need the query string.
+  const pathId=location.pathname.replace(/^\/+/,"").split("/")[0];
+  const id=(p.get("test")||pathId||"ai-ml").replace(/[^a-z0-9-]/gi,"");
   const s=document.createElement("script");
   s.src="data/"+id+".js";
   s.onerror=function(){ document.getElementById("app").innerHTML="<div class='card'>Unknown assessment: "+id+"</div>"; };
