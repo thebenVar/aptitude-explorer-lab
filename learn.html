@@ -241,7 +241,7 @@ function lineChart(values, unit){
     `<text x="${pad}" y="16" fill="#6b7785" font-size="11">${unit||""}</text></svg>`;
 }
 
-/* ---- sections: strategy + questions with full reasoning ---- */
+/* ---- LEGACY SECTIONS (kept as empty stub; guide content lives in data/<id>.guide.js) ---- */
 const SECTIONS = [
   {
     id:"quant", label:"Quantitative / Numerical",
@@ -501,8 +501,7 @@ const ACTIVE=TEST_META_LEARN[ACTIVE_ID];
 /* ---- render ---- */
 const keys=["A","B","C","D","E","F"];
 const content=document.getElementById("content");
-const REG={};   // qid -> {q, card, sec, qNo}  (qid matches the test: q1..q30)
-let qNo=0;
+const REG={};   // qid -> {q, card, dimId, qNo}
 
 const seenQids=getSeenQids(ACTIVE_ID);
 if(seenQids.size===0){
@@ -517,52 +516,111 @@ if(seenQids.size===0){
   content.parentNode.insertBefore(_empty, content);
 }
 
-if(ACTIVE.hasGuide) SECTIONS.forEach(sec=>{
-  const strat=document.createElement("div");
-  strat.className="strategy"; strat.id=sec.id;
-  strat.innerHTML=`<h2>${sec.label}</h2>
-    <div class="pill" style="margin-bottom:8px">How to approach this type</div>
-    <p class="tip" style="margin:0">${sec.strategy}</p>`;
-  content.appendChild(strat);
-  let _secHasQ=false;
+// Data-driven guide rendering. Called once both data/<id>.js (bank)
+// and data/<id>.guide.js (explanations) have loaded.
+let _bank=null, _guide=null, _rendered=false;
+function tryRender(){
+  if(_rendered || !_bank || !_guide) return;
+  _rendered=true;
+  renderGuide(_bank, _guide);
+  window.addEventListener("load", autoLoadFromStorage);
+}
+function renderGuide(bank, guide){
+  const dimOrder=Object.keys(ACTIVE.dimLabels);
+  const byDim={};
+  bank.forEach(q=>{ (byDim[q.dim]=byDim[q.dim]||[]).push(q); });
 
-  sec.questions.forEach(q=>{
-    qNo++;
-    const qid="q"+qNo;
-    if(seenQids.size>0 && !seenQids.has(qid)) return;
-    _secHasQ=true;
-    const optsHtml=q.options.map((o,i)=>
-      `<div class="opt${i===q.answer?" correct":""}" data-i="${i}">
-         <span class="key">${keys[i]}</span><span>${o}${i===q.answer?'  &nbsp;✓':''}</span></div>`).join("");
-    const stepsHtml=q.steps.map(s=>`<li>${s}</li>`).join("");
-    const trapHtml=q.trap?`<div class="trap"><b>⚠ Common trap:</b> ${q.trap}</div>`:"";
-    const codeHtml=q.code?`<pre class="code">${q.code.replace(/</g,"&lt;")}</pre>`:"";
-    const chartHtml=q.chart?`<div class="chart">${q.chart}</div>`:"";
+  dimOrder.forEach(dimId=>{
+    const qs=byDim[dimId]||[];
+    const dimLabel=ACTIVE.dimLabels[dimId]||dimId;
+    const strategy=guide.strategies&&guide.strategies[dimId];
+    const strat=document.createElement("div");
+    strat.className="strategy"; strat.id=dimId;
+    strat.innerHTML=`<h2>${dimLabel}</h2>
+      <div class="pill" style="margin-bottom:8px">How to approach this type</div>
+      <p class="tip" style="margin:0">${strategy||"Work through each problem methodically. Read the question carefully and identify what it is really asking before looking at the options."}</p>`;
+    content.appendChild(strat);
+    let secHasQ=false;
 
-    const card=document.createElement("div");
-    card.className="q"; card.id="card-"+qid; card.dataset.dim=sec.id;
-    card.innerHTML=`
-      <div class="qhead"><span class="qnum">Q${qNo}</span>
-        <span class="pill">${sec.label}</span></div>
-      <div class="rslot" id="rslot-${qid}" style="display:none"></div>
-      <div class="qprompt">${q.prompt}</div>
-      ${codeHtml}${chartHtml}
-      <details>
-        <summary>How to think about it</summary>
-        <div class="think">
-          <h4>Step by step</h4>
-          <ol class="steps">${stepsHtml}</ol>
-          ${trapHtml}
-          <div class="answer"><b>Answer: ${keys[q.answer]}.</b> ${q.options[q.answer]}</div>
-          <h4 style="margin-top:12px">All options</h4>
-          <div class="opts">${optsHtml}</div>
-        </div>
-      </details>`;
-    content.appendChild(card);
-    REG[qid]={q, card, sec, qNo};
+    qs.forEach(q=>{
+      const qid=q.id;
+      if(seenQids.size>0 && !seenQids.has(qid)) return;
+      secHasQ=true;
+      const exp=guide.questions&&guide.questions[qid];
+      const optsHtml=q.options.map((o,i)=>
+        `<div class="opt${i===q.answer?" correct":""}" data-i="${i}">
+           <span class="key">${keys[i]}</span><span>${o}${i===q.answer?"  &nbsp;✓":""}</span></div>`).join("");
+      const codeHtml=q.code?`<pre class="code">${q.code.replace(/</g,"&lt;")}</pre>`:"";
+      const chartHtml=q.chart?`<div class="chart">${q.chart}</div>`:"";
+      let detailsHtml;
+      if(exp){
+        const stepsHtml=(exp.steps||[]).map(s=>`<li>${s}</li>`).join("");
+        const trapHtml=exp.trap?`<div class="trap"><b>⚠ Common trap:</b> ${exp.trap}</div>`:"";
+        detailsHtml=`<details>
+          <summary>How to think about it</summary>
+          <div class="think">
+            <h4>Step by step</h4>
+            <ol class="steps">${stepsHtml}</ol>
+            ${trapHtml}
+            <div class="answer"><b>Answer: ${keys[q.answer]}.</b> ${q.options[q.answer]}</div>
+            <h4 style="margin-top:12px">All options</h4>
+            <div class="opts">${optsHtml}</div>
+          </div>
+        </details>`;
+      } else {
+        // No explanation yet — show answer only
+        detailsHtml=`<details>
+          <summary>Show answer</summary>
+          <div class="think">
+            <div class="answer"><b>Answer: ${keys[q.answer]}.</b> ${q.options[q.answer]}</div>
+            <div class="opts">${optsHtml}</div>
+          </div>
+        </details>`;
+      }
+      const qNum=parseInt(qid.replace("q",""),10);
+      const card=document.createElement("div");
+      card.className="q"; card.id="card-"+qid; card.dataset.dim=dimId;
+      card.innerHTML=`
+        <div class="qhead"><span class="qnum">Q${qNum}</span>
+          <span class="pill">${dimLabel}</span></div>
+        <div class="rslot" id="rslot-${qid}" style="display:none"></div>
+        <div class="qprompt">${q.prompt}</div>
+        ${codeHtml}${chartHtml}
+        ${detailsHtml}`;
+      content.appendChild(card);
+      REG[qid]={q, card, dimId, qNo:qNum};
+    });
+    if(!secHasQ) content.removeChild(strat);
   });
-  if(!_secHasQ) content.removeChild(strat);
-}); // end ACTIVE.hasGuide SECTIONS block
+}
+
+// Load bank (data/<id>.js) then guide (data/<id>.guide.js).
+// Both use a callback pattern so file:// works without fetch.
+window.__bootAssessment=function(){
+  _bank=window.ASSESSMENT&&window.ASSESSMENT.bank;
+  window.__bootAssessment=null;
+  tryRender();
+};
+window.__onGuideLoaded=function(){
+  _guide=window.GUIDE;
+  window.__onGuideLoaded=null;
+  tryRender();
+};
+(function(){
+  const id=ACTIVE_ID.replace(/[^a-z0-9-]/gi,"");
+  function injectScript(src, onErr){
+    const s=document.createElement("script"); s.src=src;
+    s.onerror=onErr; document.body.appendChild(s);
+  }
+  injectScript("data/"+id+".js", function(){
+    _bank=[]; tryRender();
+  });
+  injectScript("data/"+id+".guide.js", function(){
+    // Guide file missing — render without explanations
+    window.GUIDE={strategies:{},questions:{}};
+    _guide=window.GUIDE; tryRender();
+  });
+})();
 
 /* ---- reveal/hide all ---- */
 document.getElementById("open-all").addEventListener("click",
@@ -602,16 +660,7 @@ document.querySelectorAll(".take-test-link").forEach(a=>{
   a.href=ACTIVE.href;
   a.textContent="📝 Take the "+ACTIVE.name+" test →";
 });
-if(!ACTIVE.hasGuide){
-  document.getElementById("open-all").style.display="none";
-  document.getElementById("close-all").style.display="none";
-  document.getElementById("toc").style.display="none";
-  document.getElementById("brand-title").textContent="Review Your Results";
-  document.getElementById("intro-desc").innerHTML=
-    `Load your saved results to review the questions you attempted in the <b>${ACTIVE.name}</b> assessment — which you got right, where you went wrong, and how you approached each one.`;
-  document.getElementById("intro-hint").style.display="none";
-  document.getElementById("bottom-cta-text").textContent="Want to retake the "+ACTIVE.name+" assessment?";
-}
+document.getElementById("bottom-cta-text").textContent="Practised these and want to see how you'd score?";
 
 dz.addEventListener("click", ()=>fileEl.click());
 dz.addEventListener("dragover", e=>{e.preventDefault();dz.classList.add("over");});
@@ -631,59 +680,11 @@ function readFile(file){
       const json=b64decode(outer.payload);
       const tampered=checksum(json)!==outer.checksum;
       const data=JSON.parse(json);
-      if(ACTIVE.hasGuide){ analyze(data, tampered); } else { renderResultReview(data, tampered); }
+      analyze(data, tampered);
     }catch(err){ msg("Couldn't read that file ("+escapeHtml(err.message)+").","bad"); }
   };
   r.onerror=()=>msg("Failed to read the file.","bad");
   r.readAsText(file);
-}
-
-/* ---- result-review mode for non-AI/ML tests ---- */
-function renderResultReview(data, tampered){
-  const content=document.getElementById("content");
-  content.style.display=""; content.innerHTML="";
-  Object.keys(REG).forEach(k=>delete REG[k]);
-  const pq=data.perQuestion||[];
-  let answered=0, correct=0;
-
-  const notice=document.createElement("div");
-  notice.className="card";
-  notice.style.cssText="margin-bottom:20px;border-color:rgba(79,156,249,.3);background:rgba(79,156,249,.05);padding:14px 18px";
-  notice.innerHTML=`<p class="faint" style="margin:0">📚 <b>Detailed step-by-step guides for the ${ACTIVE.name} assessment are coming soon.</b> These cards are drawn from your result — correct answers are marked, but the full reasoning breakdowns haven't been written yet.</p>`;
-  content.appendChild(notice);
-
-  pq.forEach((p,i)=>{
-    const qid=p.qid;
-    answered++; if(p.isCorrect) correct++;
-    const tags=[];
-    if(p.answer==null) tags.push('<span class="tag no">Left blank</span>');
-    else if(p.isCorrect) tags.push('<span class="tag ok">✓ Correct</span>');
-    else tags.push('<span class="tag no">✗ Wrong</span>');
-    tags.push('<span class="tag">'+(p.totalMs/1000).toFixed(1)+'s</span>');
-    if(p.wasRapid) tags.push('<span class="tag beh">answered fast</span>');
-    if(p.timedOut) tags.push('<span class="tag beh">ran out of time</span>');
-    const nch=p.changes?p.changes.length:0;
-    if(nch>0){
-      const path=[p.changes[0].from,...p.changes.map(c=>c.to)].map(x=>keys[x]).join("→");
-      tags.push('<span class="tag beh">changed '+nch+'× ('+path+')</span>');
-    }
-    if(p.visits>1) tags.push('<span class="tag beh">revisited '+p.visits+'×</span>');
-    const dimLabel=DIM_LABEL[p.dim]||p.dim;
-    const card=document.createElement("div");
-    card.className="q"; card.id="card-"+qid;
-    card.innerHTML=`
-      <div class="qhead"><span class="qnum">Q${i+1}</span> <span class="pill">${dimLabel}</span></div>
-      <div class="rslot" style="display:flex">${tags.join("")}</div>
-      <div class="qprompt">${p.prompt}</div>
-      <p class="faint" style="font-size:.83rem;margin-top:8px">Correct answer: <b>${keys[p.correctAnswer]}</b>${!p.isCorrect&&p.answer!=null?` &nbsp;·&nbsp; you picked <b>${keys[p.answer]}</b>`:""}.</p>`;
-    content.appendChild(card);
-    REG[qid]={card, qNo:i+1};
-  });
-
-  buildReview(data, pq, answered, correct, tampered);
-  document.getElementById("filterbar").classList.add("show");
-  uploadMsg.innerHTML="";
-  document.getElementById("review").scrollIntoView({behavior:"smooth"});
 }
 
 function analyze(data, tampered){
@@ -691,9 +692,11 @@ function analyze(data, tampered){
   const byId={}; pq.forEach(p=>byId[p.qid]=p);
   let answered=0, correct=0;
 
-  // annotate every question card with the student's outcome + behavior
+  // Annotate every rendered question card with the student's outcome + behavior.
+  // Cards in REG are only those the student has already seen (seenQids filter).
   Object.keys(REG).forEach(qid=>{
-    const p=byId[qid], {card,q}=REG[qid];
+    const p=byId[qid];
+    const {card, q}=REG[qid];
     const slot=card.querySelector(".rslot");
     card.classList.remove("dim-hide");
     if(!p){ slot.style.display="none"; return; }
@@ -703,9 +706,10 @@ function analyze(data, tampered){
       if(pick && !pick.classList.contains("correct")) pick.classList.add("your-pick");
     }
     const tags=[];
+    const correctAnswer=q?q.answer:p.correctAnswer;
     if(p.answer==null) tags.push('<span class="tag no">Left blank</span>');
     else if(p.isCorrect) tags.push('<span class="tag ok">✓ You got this right</span>');
-    else tags.push('<span class="tag no">✗ You picked '+keys[p.answer]+' &middot; answer is '+keys[q.answer]+'</span>');
+    else tags.push('<span class="tag no">✗ You picked '+keys[p.answer]+' &middot; answer is '+keys[correctAnswer]+'</span>');
     tags.push('<span class="tag">'+(p.totalMs/1000).toFixed(1)+'s</span>');
     if(p.wasRapid) tags.push('<span class="tag beh">answered fast</span>');
     if(p.timedOut) tags.push('<span class="tag beh">ran out of time</span>');
@@ -717,7 +721,7 @@ function analyze(data, tampered){
     if(p.visits>1) tags.push('<span class="tag beh">revisited '+p.visits+'×</span>');
     slot.innerHTML=tags.join("");
     slot.style.display="flex";
-    if(!p.isCorrect) card.querySelector("details").open=true; // open explanations for misses
+    if(!p.isCorrect) card.querySelector("details").open=true;
   });
 
   buildReview(data, pq, answered, correct, tampered);
@@ -788,7 +792,7 @@ function buildReview(data, pq, answered, correct, tampered){
 
   const plan=`<h3 style="margin-top:16px">Your study plan</h3>
     <ol class="steps">
-      <li>${ACTIVE.hasGuide?`Read the <b>${DIM_LABEL[weakest]||weakest}</b> strategy box, then re-attempt your missed questions there without peeking.`:`Focus on <b>${DIM_LABEL[weakest]||weakest}</b> — re-attempt the questions you missed, then retake the test.`}</li>
+      <li>Read the <b>${DIM_LABEL[weakest]||weakest}</b> strategy box, then re-attempt your missed questions there without peeking.</li>
       <li>Work through your other mistakes below — their explanations are already open. Cover the steps, try, then check.</li>
       <li>After a few days, retake the test (<code class="inl">index.html</code>) and watch ${DIM_LABEL[weakest]} climb.</li>
     </ol>`;
@@ -843,7 +847,7 @@ function autoLoadFromStorage(){
     const latest=decoded[decoded.length-1];
     const json=b64decode(latest.w.payload);
     const tampered=checksum(json)!==latest.w.checksum;
-    if(ACTIVE.hasGuide){ analyze(latest.data, tampered); } else { renderResultReview(latest.data, tampered); }
+    analyze(latest.data, tampered);
     const attemptStr=latest.data.attemptNumber?` — Attempt ${latest.data.attemptNumber}`:"";
     dz.innerHTML=`<p style="margin:0"><b>✓ Reviewing your ${ACTIVE.name} results${attemptStr}</b></p>
       <p class="faint" style="margin:6px 0 0">Saved in this browser. <button class="btn sm" id="clear-storage" style="margin-top:6px">Clear &amp; upload different file</button></p>`;
@@ -853,7 +857,6 @@ function autoLoadFromStorage(){
     });
   }catch(err){}
 }
-window.addEventListener("load", autoLoadFromStorage);
 </script>
 </body>
 </html>
